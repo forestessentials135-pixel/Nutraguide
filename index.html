@@ -1,0 +1,2165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutra Guide By Anuj Khare</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            light: '#e8f5e9', // Very light green
+                            DEFAULT: '#4caf50', // Medium green
+                            dark: '#2e7d32', // Dark green
+                            accent: '#81c784' // Soft green
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f1f8e9; /* Light green background */
+            -webkit-tap-highlight-color: transparent;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .tab-active {
+            background-color: #2e7d32;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .tab-inactive {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        /* Modal Background Blur */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+        /* Full Screen Modal */
+        .full-screen-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 300;
+            background-color: white;
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased min-h-screen flex flex-col overflow-hidden">
+
+    <!-- Login Screen Overlay -->
+    <div id="login-screen" class="fixed inset-0 bg-brand-light z-[500] flex flex-col justify-center items-center p-4 transition-opacity duration-500">
+        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-brand-accent/30">
+            <div class="text-center mb-8">
+                <i class="fa-solid fa-shield-halved text-4xl text-brand mb-3"></i>
+                <h2 class="text-2xl font-bold text-gray-800">Nutra<span class="text-brand-accent">Guide</span></h2>
+                <p class="text-xs uppercase tracking-wider text-brand font-bold mt-1">By Anuj Khare</p>
+                <p class="text-sm text-gray-500 mt-2">Secure Formulation DB Access</p>
+            </div>
+            
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Select User ID</label>
+                    <select id="username-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand outline-none transition-colors bg-gray-50 focus:bg-white cursor-pointer" onchange="togglePasswordField()">
+                        <option value="Anuj Khare">Anuj Khare (Admin)</option>
+                        <option value="Mira">Mira (Admin)</option>
+                        <option value="Guest">Guest Access (View Only)</option>
+                    </select>
+                </div>
+                <div id="password-container">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" id="password-input" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand outline-none transition-colors bg-gray-50 focus:bg-white" placeholder="Enter Password">
+                </div>
+                <div id="login-error" class="text-red-500 text-sm hidden font-medium bg-red-50 p-3 rounded-lg border border-red-100">
+                    <i class="fa-solid fa-circle-exclamation mr-1"></i> Incorrect Password.
+                </div>
+                <button onclick="handleLogin()" class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-3 rounded-lg transition-colors shadow-md mt-4 text-lg">
+                    Login
+                </button>
+            </div>
+        </div>
+        <div class="mt-8 text-sm text-brand-dark opacity-80 font-medium tracking-wide">
+            Authorized Access Only • By Anuj Khare
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-brand-dark text-white sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-leaf text-2xl text-brand-accent"></i>
+                <div class="flex flex-col">
+                    <h1 class="text-xl font-bold tracking-wide">Nutra<span class="text-brand-accent">Guide</span></h1>
+                    <span class="text-[10px] uppercase tracking-wider text-brand-light font-medium mt-[-4px] opacity-90">By Anuj Khare</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="text-sm opacity-80 hidden sm:block">Formulation DB</div>
+                <!-- User Controls (Hidden initially) -->
+                <div id="user-controls" class="hidden items-center gap-3 ml-2 sm:ml-4 border-l border-white/20 pl-3 sm:pl-4">
+                    <span id="welcome-user" class="text-xs sm:text-sm font-medium text-brand-light hidden sm:inline"></span>
+                    <button onclick="openModal('change-password-modal')" class="text-xs bg-brand-light text-brand-dark px-2 py-1.5 rounded hover:bg-white transition-colors" title="Change Password"><i class="fa-solid fa-key"></i></button>
+                    <button onclick="logout()" class="text-xs bg-red-500 text-white px-2 py-1.5 rounded hover:bg-red-600 transition-colors" title="Logout"><i class="fa-solid fa-power-off"></i></button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="bg-white shadow-sm sticky top-[60px] z-40">
+        <div class="container mx-auto px-2 py-3">
+            <div class="flex flex-wrap gap-2 pb-1 justify-center md:justify-start" id="tabs-container">
+                <!-- Tabs will be rendered here by JS -->
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="container mx-auto px-4 py-6 flex-grow">
+        <div class="mb-6">
+            <h2 id="section-title" class="text-2xl font-bold text-brand-dark mb-2 border-b-2 border-brand-accent inline-block pb-1">
+                Loading...
+            </h2>
+            <p id="section-desc" class="text-gray-600 text-sm mt-1"></p>
+        </div>
+
+        <div id="content-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Cards will be injected here -->
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-brand-dark text-white text-center py-4 mt-auto">
+        <p class="text-sm opacity-80">© 2026 Nutra Guide By Anuj Khare. Created for Web & App.</p>
+    </footer>
+
+    <!-- MODALS SECTION -->
+    
+    <!-- Change Password Modal -->
+    <div id="change-password-modal" class="fixed inset-0 modal-overlay z-[200] hidden flex-col justify-center items-center p-4">
+        <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-sm">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Change Password</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">New Password</label>
+                    <input type="password" id="new-password-input" class="w-full px-3 py-2 border rounded-md focus:ring-brand focus:border-brand outline-none" placeholder="Enter new password">
+                </div>
+                <div id="pwd-msg" class="text-xs hidden mt-1 font-medium"></div>
+                <div class="flex gap-2 justify-end mt-4">
+                    <button onclick="closeModal('change-password-modal')" class="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md transition-colors">Cancel</button>
+                    <button onclick="saveNewPassword()" class="px-4 py-2 text-sm bg-brand text-white rounded-md hover:bg-brand-dark transition-colors">Save Updates</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supplier Details Info Modal -->
+    <div id="supplier-info-modal" class="fixed inset-0 modal-overlay z-[200] hidden flex-col justify-center items-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-brand-light px-5 py-4 border-b flex justify-between items-start">
+                <div>
+                    <div class="text-[10px] font-bold text-brand uppercase mb-1">Supplier Contact Info</div>
+                    <h3 class="text-xl font-bold text-gray-800" id="modal-product-name">Product Name</h3>
+                </div>
+                <button onclick="closeModal('supplier-info-modal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="p-5 overflow-y-auto">
+                <h4 class="text-lg font-bold text-brand-dark mb-3" id="modal-supplier-name">Supplier Name</h4>
+                <div class="bg-gray-50 p-4 rounded-lg border border-gray-100 space-y-3" id="modal-supplier-details">
+                    <!-- Details injected via JS -->
+                </div>
+            </div>
+            <div class="bg-gray-50 px-5 py-3 border-t text-right">
+                <button onclick="closeModal('supplier-info-modal')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors text-sm font-medium">Close Window</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add New Supplier/Product Modal -->
+    <div id="add-supplier-modal" class="fixed inset-0 modal-overlay z-[200] hidden flex-col justify-center items-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-brand px-5 py-4 text-white flex justify-between items-center">
+                <h3 class="text-lg font-bold"><i class="fa-solid fa-plus-circle mr-2"></i>Add New Product & Supplier</h3>
+                <button onclick="closeModal('add-supplier-modal')" class="text-white hover:text-gray-200"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="p-5 overflow-y-auto space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Product Name *</label>
+                    <input type="text" id="add-prod-name" class="w-full px-3 py-2 border rounded-md focus:ring-brand focus:border-brand outline-none" placeholder="e.g. Pure Shilajit Extract">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Supplier / Company Name *</label>
+                    <input type="text" id="add-sup-name" class="w-full px-3 py-2 border rounded-md focus:ring-brand focus:border-brand outline-none" placeholder="e.g. Dabur India">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Contact Email</label>
+                        <input type="email" id="add-sup-email" class="w-full px-3 py-2 border rounded-md focus:ring-brand outline-none" placeholder="sales@company.com">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Phone Number</label>
+                        <input type="text" id="add-sup-phone" class="w-full px-3 py-2 border rounded-md focus:ring-brand outline-none" placeholder="+91...">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Supplier Full Address & Notes</label>
+                    <textarea id="add-sup-address" rows="3" class="w-full px-3 py-2 border rounded-md focus:ring-brand outline-none resize-none" placeholder="Complete address or any specific remarks..."></textarea>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-5 py-4 border-t flex justify-end gap-2">
+                <button onclick="closeModal('add-supplier-modal')" class="px-4 py-2 text-sm text-gray-600 hover:bg-gray-200 rounded-md transition-colors">Cancel</button>
+                <button onclick="saveCustomProduct()" class="px-4 py-2 text-sm bg-brand text-white rounded-md hover:bg-brand-dark transition-colors font-bold">Save to Database</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Note Modal -->
+    <div id="add-note-modal" class="fixed inset-0 modal-overlay z-[200] hidden flex-col justify-center items-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-brand px-5 py-4 text-white flex justify-between items-center">
+                <h3 class="text-lg font-bold" id="note-modal-title"><i class="fa-solid fa-plus-circle mr-2"></i>Add New Note</h3>
+                <button onclick="closeModal('add-note-modal')" class="text-white hover:text-gray-200"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="p-5 overflow-y-auto space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Subject *</label>
+                    <input type="text" id="add-note-subject" class="w-full px-3 py-2 border rounded-md focus:ring-brand focus:border-brand outline-none" placeholder="Enter Subject">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Text Content *</label>
+                    <textarea id="add-note-text" rows="6" class="w-full px-3 py-2 border rounded-md focus:ring-brand outline-none resize-none" placeholder="Paste your text here..."></textarea>
+                </div>
+                <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                    <label class="block text-xs font-bold text-gray-700 mb-1"><i class="fa-solid fa-lock text-brand mr-1"></i>Lock Note with Password (Optional)</label>
+                    <input type="password" id="add-note-password" class="w-full px-3 py-2 border rounded-md focus:ring-brand outline-none text-sm" placeholder="Leave blank to keep it unlocked">
+                </div>
+            </div>
+            <div class="bg-gray-50 px-5 py-4 border-t flex justify-end gap-2">
+                <button onclick="closeModal('add-note-modal')" class="px-4 py-2 text-sm text-gray-600 hover:bg-gray-200 rounded-md transition-colors">Cancel</button>
+                <button onclick="saveNote()" class="px-4 py-2 text-sm bg-brand text-white rounded-md hover:bg-brand-dark transition-colors font-bold">Save Note</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Unlock Note Modal -->
+    <div id="unlock-note-modal" class="fixed inset-0 modal-overlay z-[250] hidden flex-col justify-center items-center p-4">
+        <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-sm border-t-4 border-brand">
+            <h3 class="text-lg font-bold text-gray-800 mb-2"><i class="fa-solid fa-lock text-brand mr-2"></i>Protected Note</h3>
+            <p class="text-xs text-gray-500 mb-4">This note is locked. Please enter the password to proceed.</p>
+            <div class="space-y-4">
+                <div>
+                    <input type="password" id="unlock-password-input" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand outline-none" placeholder="Enter note password">
+                </div>
+                <div id="unlock-error" class="text-xs hidden text-red-500 font-medium bg-red-50 p-2 rounded"><i class="fa-solid fa-circle-exclamation mr-1"></i>Incorrect password.</div>
+                <div class="flex gap-2 justify-end mt-4">
+                    <button onclick="closeModal('unlock-note-modal')" class="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md transition-colors">Cancel</button>
+                    <button onclick="verifyNotePassword()" class="px-4 py-2 text-sm bg-brand text-white rounded-md hover:bg-brand-dark transition-colors font-bold">Unlock</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Full Note Modal (Full Screen) -->
+    <div id="view-note-modal" class="full-screen-modal hidden flex-col">
+        <div class="bg-brand-dark px-6 py-4 text-white flex justify-between items-center shadow-md">
+            <h3 class="text-2xl font-bold" id="view-note-title">Note Subject</h3>
+            <button onclick="closeModal('view-note-modal')" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-arrow-left"></i> Return to Main Screen
+            </button>
+        </div>
+        <div class="p-8 flex-grow overflow-y-auto bg-gray-50">
+            <div class="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-sm border border-gray-100 min-h-full">
+                <p id="view-note-content" class="text-gray-700 whitespace-pre-wrap text-lg leading-relaxed"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section Unlock Modal (For Formulas) -->
+    <div id="section-unlock-modal" class="fixed inset-0 modal-overlay z-[250] hidden flex-col justify-center items-center p-4">
+        <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-sm border-t-4 border-brand">
+            <h3 class="text-lg font-bold text-gray-800 mb-2"><i class="fa-solid fa-shield-halved text-brand mr-2"></i>Protected Section</h3>
+            <p class="text-xs text-gray-500 mb-4">This section contains highly confidential formulas. Please enter the master password to access.</p>
+            <div class="space-y-4">
+                <div>
+                    <input type="password" id="section-unlock-password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brand outline-none" placeholder="Enter master password">
+                </div>
+                <div id="section-unlock-error" class="text-xs hidden text-red-500 font-medium bg-red-50 p-2 rounded"><i class="fa-solid fa-circle-exclamation mr-1"></i>Incorrect password.</div>
+                <div class="flex gap-2 justify-end mt-4">
+                    <button onclick="closeModal('section-unlock-modal')" class="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md transition-colors">Cancel</button>
+                    <button onclick="unlockFormulasSection()" class="px-4 py-2 text-sm bg-brand text-white rounded-md hover:bg-brand-dark transition-colors font-bold">Unlock</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Formula Modal -->
+    <div id="add-formula-modal" class="fixed inset-0 modal-overlay z-[200] hidden flex-col justify-center items-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-brand px-5 py-4 text-white flex justify-between items-center">
+                <h3 class="text-lg font-bold" id="formula-modal-title"><i class="fa-solid fa-plus-circle mr-2"></i>Add New Formula</h3>
+                <button onclick="closeModal('add-formula-modal')" class="text-white hover:text-gray-200"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="p-5 overflow-y-auto space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Formula Name / Subject *</label>
+                        <input type="text" id="add-formula-subject" class="w-full px-3 py-2 border rounded-md focus:ring-brand outline-none" placeholder="e.g. Pre-Workout Blend v2">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Date * (Auto-filled, but editable)</label>
+                        <input type="date" id="add-formula-date" class="w-full px-3 py-2 border rounded-md focus:ring-brand outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Formula Content (Paste from Excel) *</label>
+                    <textarea id="add-formula-text" rows="10" class="w-full px-3 py-2 border rounded-md focus:ring-brand outline-none resize-none font-mono text-sm" placeholder="Paste your Excel rows here..."></textarea>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-5 py-4 border-t flex justify-end gap-2">
+                <button onclick="closeModal('add-formula-modal')" class="px-4 py-2 text-sm text-gray-600 hover:bg-gray-200 rounded-md transition-colors">Cancel</button>
+                <button onclick="saveFormula()" class="px-4 py-2 text-sm bg-brand text-white rounded-md hover:bg-brand-dark transition-colors font-bold">Save Formula</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Full Formula Modal (Full Screen) -->
+    <div id="view-formula-modal" class="full-screen-modal hidden flex-col">
+        <div class="bg-brand-dark px-6 py-4 text-white flex justify-between items-center shadow-md">
+            <div>
+                <h3 class="text-2xl font-bold" id="view-formula-title">Formula Subject</h3>
+                <p class="text-xs text-brand-light mt-1" id="view-formula-date"><i class="fa-regular fa-calendar-days mr-1"></i> Date</p>
+            </div>
+            <button onclick="closeModal('view-formula-modal')" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-arrow-left"></i> Return
+            </button>
+        </div>
+        <div class="p-8 flex-grow overflow-y-auto bg-gray-50">
+            <div class="max-w-5xl mx-auto bg-white p-8 rounded-xl shadow-sm border border-gray-100 min-h-full overflow-x-auto">
+                <pre id="view-formula-content" class="text-gray-800 font-mono text-sm leading-relaxed whitespace-pre"></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cloud Sync Toast Notification -->
+    <div id="cloud-toast" class="fixed bottom-6 right-6 bg-brand-dark text-white px-5 py-3 rounded-lg shadow-2xl transform translate-y-24 opacity-0 transition-all duration-300 z-[600] flex items-center gap-3 font-medium">
+        <i class="fa-solid fa-cloud-arrow-up text-brand-accent text-xl"></i> <span id="cloud-toast-msg">Saved to Cloud!</span>
+    </div>
+
+    <!-- Application Logic & Data -->
+    <script>
+        // --- GOOGLE SHEETS CLOUD SYNC SETTINGS ---
+        // Yahan par aapko apna Google Apps Script ka URL paste karna hai
+        const GOOGLE_APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzZhDLb1f2DwrAoxU2mA33h-yJAxd_gMqx1wsVzFy8zt9dyvpM3N3xfGNVzjq4e3VaY/exec"; 
+
+        function showCloudToast(msg) {
+            const toast = document.getElementById('cloud-toast');
+            document.getElementById('cloud-toast-msg').textContent = msg;
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 3500);
+        }
+
+        function syncToGoogleSheet(dataType, nameOrSubject, contentDetails) {
+            // Agar URL paste nahi kiya gaya hai, toh sync nahi hoga
+            if (!GOOGLE_APP_SCRIPT_URL || GOOGLE_APP_SCRIPT_URL === "PASTE_YOUR_WEB_APP_URL_HERE") {
+                console.log("Note: Google Sheet URL is not setup. Data is saved locally in browser only.");
+                return;
+            }
+
+            showCloudToast("Syncing with Google Sheets...");
+
+            const payload = {
+                timestamp: new Date().toLocaleString('en-IN'),
+                user: currentUser ? currentUser.name : "Guest",
+                dataType: dataType,
+                subject: nameOrSubject,
+                details: contentDetails
+            };
+
+            fetch(GOOGLE_APP_SCRIPT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/plain;charset=utf-8',
+                },
+                body: JSON.stringify(payload)
+            }).then(response => {
+                showCloudToast("Successfully Saved to Google Sheets!");
+            }).catch(err => {
+                console.error("Cloud Sync Error:", err);
+                showCloudToast("Cloud Sync Failed. Check Console.");
+            });
+        }
+        // ------------------------------------------
+
+        // Toggle password field visibility for Guest
+        function togglePasswordField() {
+            const userSelection = document.getElementById('username-input').value;
+            const passContainer = document.getElementById('password-container');
+            if (userSelection === 'Guest') {
+                passContainer.style.display = 'none';
+            } else {
+                passContainer.style.display = 'block';
+            }
+        }
+
+        // Default Users & Authentication State
+        const defaultUsers = {
+            "Anuj Khare": { pass: "MKAK@123", role: "admin" },
+            "Mira": { pass: "MKAK@123", role: "admin" }
+        };
+        
+        // Load users from localStorage or use defaults
+        let appUsers = JSON.parse(localStorage.getItem('nutraUsers')) || defaultUsers;
+        let currentUser = null;
+
+        // Shared with Guest Data
+        let guestSharedItems = JSON.parse(localStorage.getItem('nutraGuestSharedItems')) || [];
+
+        // Custom Products added by Purchase team
+        let customProducts = JSON.parse(localStorage.getItem('nutraCustomProducts')) || [];
+        
+        // Personal Notes & Variables for Edit/Unlock logic
+        let userNotes = JSON.parse(localStorage.getItem('nutraUserNotes')) || [];
+        let currentEditingNoteIndex = -1;
+        let noteToUnlockIndex = -1;
+        let unlockAction = ''; // can be 'view', 'edit', or 'delete'
+
+        // Formulas Variables
+        let userFormulas = JSON.parse(localStorage.getItem('nutraUserFormulas')) || [];
+        let currentEditingFormulaIndex = -1;
+        let isFormulasUnlocked = false; // Session lock flag for Formulas section
+
+        // Database of Ingredients
+        const db = {
+            "turmeric": {
+                title: "Turmeric & Curcumin",
+                desc: "Top standard variants of Turmeric extract, Curcumin, and Nano Curcumin.",
+                items: [
+                    {
+                        name: "BCM-95® (Curcugreen®)",
+                        supplier: "Arjuna Natural",
+                        type: "100% Turmeric Extract (with Essential Oils)",
+                        dosage: "500mg / day",
+                        price: "₹8,000 - ₹12,000 / kg",
+                        research: "80+ Published Studies",
+                        clinicalFindings: "Clinically proven to deliver 700% more bioavailable FREE curcumin to the bloodstream. Proven efficacy in joint support, mood enhancement, and cognitive health.",
+                        claims: "Supports joint flexibility & mobility • 7x More Bioavailable • Clinically proven mood support",
+                        features: "A unique formulation containing <b>curcuminoids combined with Ar-turmerone</b> (turmeric essential oil) for enhanced absorption without any synthetic additives or black pepper.",
+                        website: "https://arjunanatural.com/bcm-95-curcugreen/",
+                        contact: "mail@arjunanatural.com"
+                    },
+                    {
+                        name: "Meriva® Curcumin Phytosome",
+                        supplier: "Indena",
+                        type: "Phytosome / Nano Delivery",
+                        dosage: "500mg - 1000mg / day",
+                        price: "₹9,000 - ₹13,000 / kg",
+                        research: "35+ Clinical Trials",
+                        clinicalFindings: "Clinically proven to support a healthy inflammatory response, improve joint mobility, and reduce delayed onset muscle soreness (DOMS).",
+                        claims: "29x Higher Absorption • Promotes joint health • Advanced Phytosome technology",
+                        features: "Based on <b>Phytosome technology</b> which binds curcumin with dietary phospholipids. This increases its <b>absorption and bioavailability by 29 times</b> compared to normal curcumin.",
+                        website: "https://www.indena.com/product/meriva/",
+                        contact: "Contact via Indena website form"
+                    },
+                    {
+                        name: "Curcumin C3 Complex®",
+                        supplier: "Sabinsa",
+                        type: "Standardized Turmeric Extract",
+                        dosage: "500mg (with 5mg BioPerine)",
+                        price: "₹6,000 - ₹8,500 / kg",
+                        research: "100+ Clinical Studies",
+                        clinicalFindings: "Considered the 'Gold Standard' for curcumin research. Clinically proven antioxidant protection and metabolic health support.",
+                        claims: "The most clinically studied turmeric • Powerful antioxidant • Standardized to 95% Curcuminoids",
+                        features: "The most clinically studied curcumin in the market. It is standardized to <b>95% Curcuminoids</b>. Contains a patented ratio of <b>Curcumin, DMC, and BDMC</b>.",
+                        website: "https://curcuminoids.com/",
+                        contact: "+1 732-777-1111 (US HQ)"
+                    }
+                ]
+            },
+            "herbs": {
+                title: "Ayurvedic Herbs",
+                desc: "Standardized Ashwagandha, Shatavari, and other herbs.",
+                items: [
+                    {
+                        name: "KSM-66® Ashwagandha",
+                        supplier: "Ixoreal Biomed",
+                        type: "Root Only Extract",
+                        dosage: "300mg - 600mg / day",
+                        price: "₹4,000 - ₹5,500 / kg",
+                        research: "30+ Clinical Studies",
+                        clinicalFindings: "Clinically proven to significantly reduce cortisol levels, improve sleep quality, enhance memory, and increase muscle strength & recovery.",
+                        claims: "Clinically proven to reduce stress & anxiety • World's most researched ashwagandha • Enhances sports performance",
+                        features: "The world's most popular <b>full-spectrum root extract</b>. Contains <b>>5% withanolides</b>. Processed using <b>Green Chemistry (Milk pre-treatment)</b>.",
+                        website: "https://ksm66ashwagandhaa.com/home.php",
+                        contact: "info@ksm66ashwagandhaa.com"
+                    },
+                    {
+                        name: "Shoden® Ashwagandha",
+                        supplier: "Arjuna Natural",
+                        type: "High Potency Extract",
+                        dosage: "120mg - 240mg / day",
+                        price: "₹8,000 - ₹11,000 / kg",
+                        research: "6+ Clinical Studies",
+                        clinicalFindings: "Clinically proven to provide restorative sleep, increase DHEA-S & testosterone, and reduce stress markers significantly even at low doses.",
+                        claims: "Highly potent 35% withanolides • Promotes deep restorative sleep • Low daily dose required",
+                        features: "Highest potency in the market! Contains <b>35% Withanolide Glycosides</b>. It has <b>very high bioavailability</b> and requires a very low daily dosage.",
+                        website: "https://arjunanatural.com/shoden-ashwagandha/",
+                        contact: "mail@arjunanatural.com"
+                    },
+                    {
+                        name: "Shatavari Extract",
+                        supplier: "Arjuna Natural",
+                        type: "Standardized Root Extract",
+                        dosage: "500mg - 1000mg / day",
+                        price: "₹1,500 - ₹2,500 / kg",
+                        research: "Traditional & Emerging Clinicals",
+                        clinicalFindings: "Known to support reproductive health, balance hormones, boost immunity, and help manage inflammation effectively.",
+                        claims: "Supports women's hormonal balance • Adaptogenic stress support • Enhances overall vitality",
+                        features: "A premium extract bridging traditional Ayurveda with modern science. Standardized for a high percentage of <b>total Shatavarins (Saponins)</b>. Produced using gentle, in-house processes.",
+                        website: "https://arjunanatural.com/asparagus-racemosus/",
+                        contact: "mail@arjunanatural.com"
+                    }
+                ]
+            },
+            "beauty": {
+                title: "Beauty & Nutricosmetics",
+                desc: "Clinically proven ingredients for skin elasticity, hair growth, and anti-aging.",
+                items: [
+                    {
+                        name: "Verisol® Bioactive Collagen Peptides",
+                        supplier: "Gelita",
+                        type: "Type I & III Collagen Peptides",
+                        dosage: "2.5g / day",
+                        price: "₹2,000 - ₹3,500 / kg",
+                        research: "Multiple Human Clinicals",
+                        clinicalFindings: "Clinically proven to stimulate skin metabolism directly from the inside. Significantly reduces wrinkles and increases skin moisture and elasticity.",
+                        claims: "Clinically proven to reduce eye wrinkles by up to 20% • Improves skin elasticity • Promotes healthy nails",
+                        features: "Specifically optimized <b>Bioactive Collagen Peptides®</b> that target the skin's dermal layer. Very low effective dose of <b>2.5g daily</b> makes it ideal for gummies and shots.",
+                        website: "https://www.gelita.com/en/products/collagen-peptides/verisol",
+                        contact: "Contact Gelita"
+                    },
+                    {
+                        name: "Ceramosides™",
+                        supplier: "Seppic",
+                        type: "Phytoceramides (Wheat Extract)",
+                        dosage: "30mg - 70mg / day",
+                        price: "₹1,20,000 - ₹1,50,000 / kg",
+                        research: "Double-blind Clinical Trials",
+                        clinicalFindings: "Proven to restore the skin's water barrier and improve skin hydration. Reduces micro-wrinkles significantly.",
+                        claims: "Clinically proven visible results in 15 days • Locks in skin moisture • Anti-aging skin barrier support",
+                        features: "A highly concentrated source of <b>Phytoceramides & DGDG</b>. Provides a <b>fast-acting moisturizing effect in just 15 days</b>. Gluten-free despite wheat origin.",
+                        website: "https://www.seppic.com/en/ceramosides",
+                        contact: "Contact Seppic"
+                    },
+                    {
+                        name: "Saberry® (Amla Extract)",
+                        supplier: "Sabinsa",
+                        type: "Standardized Amla Extract",
+                        dosage: "500mg / day",
+                        price: "₹3,000 - ₹5,000 / kg",
+                        research: "Various Clinical Studies",
+                        clinicalFindings: "Clinically proven to protect skin fibroblasts against oxidative stress and support healthy hair growth by nourishing follicles.",
+                        claims: "Powerful antioxidant support • Promotes radiant skin • Supports healthy hair growth",
+                        features: "Standardized to <b>10% Beta-glucogallin</b>. It is a broad-spectrum antioxidant that is far more stable than standard Vitamin C extracts.",
+                        website: "https://sabinsa.com/product/saberry/",
+                        contact: "info@sabinsa.com"
+                    },
+                    {
+                        name: "Peptan®",
+                        supplier: "Rousselot",
+                        type: "Collagen Peptides",
+                        dosage: "5g - 10g / day",
+                        price: "₹1,000 - ₹1,800 / kg",
+                        research: "Multiple Global Clinicals",
+                        clinicalFindings: "Clinically proven to improve skin hydration, reduce collagen fragmentation, and support joint mobility.",
+                        claims: "Reduces wrinkles & improves skin elasticity • General collagen support",
+                        features: "A highly soluble, general premium collagen peptide. Less premium vs Verisol but an excellent all-rounder for beauty and joint formulations.",
+                        website: "https://www.peptan.com/",
+                        contact: "Contact Rousselot"
+                    },
+                    {
+                        name: "NutroxSun®",
+                        supplier: "Monteloeder",
+                        type: "Grapefruit & Rosemary Extract",
+                        dosage: "100mg - 250mg / day",
+                        price: "₹12,000 - ₹16,000 / kg",
+                        research: "Clinical Trials in Europe",
+                        clinicalFindings: "Clinically proven to increase UV resistance, reduce skin redness after sun exposure, and provide anti-aging benefits.",
+                        claims: "Oral sun protection • Enhances UV resistance • Anti-aging from within",
+                        features: "A patented botanical blend that acts as an <b>oral sunblock</b> by reducing UV-induced inflammation and oxidative stress in the skin.",
+                        website: "https://www.monteloeder.com/nutroxsun/",
+                        contact: "Contact Monteloeder"
+                    },
+                    {
+                        name: "Pycnogenol®",
+                        supplier: "Horphag Research",
+                        type: "French Maritime Pine Bark Extract",
+                        dosage: "50mg - 100mg / day",
+                        price: "₹3,50,000+ / kg",
+                        research: "160+ Clinical Trials",
+                        clinicalFindings: "Significant improvement in skin hydration, elasticity, and reduction in hyper-pigmentation and melasma.",
+                        claims: "Reduces skin pigmentation • Boosts hydration & elasticity • Powerful antioxidant",
+                        features: "One of the most researched and premium ingredients globally. It naturally stimulates the generation of collagen and hyaluronic acid.",
+                        website: "https://www.pycnogenol.com/",
+                        contact: "Contact Horphag"
+                    },
+                    {
+                        name: "AnaGain™ Nu",
+                        supplier: "Mibelle Biochemistry",
+                        type: "Organic Pea Sprout Extract",
+                        dosage: "100mg / day",
+                        price: "₹15,000 - ₹20,000 / kg",
+                        research: "Clinical Efficacy Proven",
+                        clinicalFindings: "Stimulates specific signal molecules (Noggin and FGF7) in the dermal papilla cells to reactivate hair growth.",
+                        claims: "Stimulates hair growth • Anti-hairfall • Clinically backed",
+                        features: "An oral formulation for hair health that prolongs the life cycle of hair and restores vitality by working from the inside out.",
+                        website: "https://mibellebiochemistry.com/",
+                        contact: "Contact Mibelle"
+                    },
+                    {
+                        name: "Capilia Longa®",
+                        supplier: "Vytrus Biotech",
+                        type: "Curcuma Longa Callus Extract",
+                        dosage: "1% - 2% (Typically Topical)",
+                        price: "Contact Supplier",
+                        research: "In-vivo Clinical Studies",
+                        clinicalFindings: "Produces an epigenetic reset of the hair bulb, re-starting the activity of the dermal papilla cells.",
+                        claims: "Anti-hair loss • Hair density improvement",
+                        features: "Primarily a topical active derived from plant stem cells. It acts as a '3D hair bio-printer', delaying hair loss and promoting new growth.",
+                        website: "https://www.vytrus.com/",
+                        contact: "Contact Vytrus"
+                    }
+                ]
+            },
+            "sleep": {
+                title: "Sleep, Stress & Calm",
+                desc: "Clinical grade adaptogens and sleep-specific actives.",
+                items: [
+                    {
+                        name: "Shoden® Ashwagandha",
+                        supplier: "Arjuna Natural",
+                        type: "High Potency Extract",
+                        dosage: "120mg - 240mg / day",
+                        price: "₹8,000 - ₹11,000 / kg",
+                        research: "6+ Clinical Studies",
+                        clinicalFindings: "Clinically proven to provide restorative sleep, increase DHEA-S & testosterone, and reduce stress markers significantly.",
+                        claims: "Highly potent 35% withanolides • Promotes deep restorative sleep",
+                        features: "Highest potency in the market! Contains <b>35% Withanolide Glycosides</b>. Requires a very low daily dosage for stress management.",
+                        website: "https://arjunanatural.com/shoden-ashwagandha/",
+                        contact: "mail@arjunanatural.com"
+                    },
+                    {
+                        name: "KSM-66® Ashwagandha",
+                        supplier: "Ixoreal Biomed",
+                        type: "Root Only Extract",
+                        dosage: "300mg - 600mg / day",
+                        price: "₹4,000 - ₹5,500 / kg",
+                        research: "30+ Clinical Studies",
+                        clinicalFindings: "Clinically proven to significantly reduce cortisol levels, improve sleep quality, and enhance mental calmness.",
+                        claims: "Reduces stress & anxiety • Most globally used clinical ashwagandha",
+                        features: "The world's most popular <b>full-spectrum root extract</b>. Contains <b>>5% withanolides</b>. Processed using Green Chemistry.",
+                        website: "https://ksm66ashwagandhaa.com/home.php",
+                        contact: "info@ksm66ashwagandhaa.com"
+                    },
+                    {
+                        name: "Affron®",
+                        supplier: "Pharmactive",
+                        type: "Standardized Saffron Extract",
+                        dosage: "28mg / day",
+                        price: "₹1,50,000 - ₹2,00,000 / kg",
+                        research: "9+ Clinical Studies",
+                        clinicalFindings: "Strong clinical backing for improving sleep quality, enhancing mood, and reducing anxiety safely.",
+                        claims: "Supports healthy sleep + mood • Fast-acting stress relief",
+                        features: "A premium saffron extract standardized to <b>Lepticrosalides®</b>. It has a very low dose of 28mg making it perfect for capsules and gummies.",
+                        website: "https://pharmactive.eu/affron/",
+                        contact: "Contact Pharmactive"
+                    },
+                    {
+                        name: "Zembrin®",
+                        supplier: "PLT Health Solutions",
+                        type: "Sceletium tortuosum Extract",
+                        dosage: "25mg / day",
+                        price: "₹80,000 - ₹1,00,000 / kg",
+                        research: "Multiple Clinicals",
+                        clinicalFindings: "Experiential cognitive support, clinically proven for immediate stress and anxiety reduction without drowsiness.",
+                        claims: "Stress and anxiety reduction • Fast-acting mood enhancement",
+                        features: "A patented botanical extract that quickly improves <b>focus and calm</b>. It is <b>fast-acting</b> (within 2 hours).",
+                        website: "https://www.zembrin.com/",
+                        contact: "Contact PLT Health"
+                    },
+                    {
+                        name: "Relora®",
+                        supplier: "Lonza / Nextmune",
+                        type: "Magnolia & Phellodendron Extract",
+                        dosage: "500mg / day",
+                        price: "₹8,000 - ₹12,000 / kg",
+                        research: "Double-blind Clinicals",
+                        clinicalFindings: "Clinically shown to reduce cortisol levels, perceived daily stress, and stress-related eating.",
+                        claims: "Cortisol control • Promotes calmness • Reduces stress-eating",
+                        features: "A proprietary blend of plant extracts that helps balance the HPA axis without causing sedation.",
+                        website: "https://www.lonza.com/",
+                        contact: "Contact Lonza"
+                    }
+                ]
+            },
+            "brain": {
+                title: "Mood Enhancement & Brain",
+                desc: "Ingredients for cognition, memory, and mental performance.",
+                items: [
+                    {
+                        name: "NeuroFactor®",
+                        supplier: "FutureCeuticals",
+                        type: "Whole Coffee Fruit Extract",
+                        dosage: "100mg / day",
+                        price: "₹15,000 - ₹25,000 / kg",
+                        research: "Human Clinical Trials",
+                        clinicalFindings: "Clinically proven to significantly increase levels of Brain-Derived Neurotrophic Factor (BDNF), a key neuro-protein.",
+                        claims: "BDNF boost • Supports brain function & memory",
+                        features: "Derived from the whole fruit of the coffee plant, it provides completely unique polyphenols that boost BDNF levels in the brain.",
+                        website: "https://www.futureceuticals.com/neurofactor",
+                        contact: "Contact FutureCeuticals"
+                    },
+                    {
+                        name: "Cognizin®",
+                        supplier: "Kyowa Hakko",
+                        type: "Citicoline",
+                        dosage: "250mg - 500mg / day",
+                        price: "₹18,000 - ₹22,000 / kg",
+                        research: "Extensive Clinicals",
+                        clinicalFindings: "Proven to increase brain energy (ATP) by 14% and speed up formation of brain membranes.",
+                        claims: "Enhances memory & focus • Clinically proven brain energy",
+                        features: "A patented form of Citicoline that supplies nutrition to the brain to stay focused and alert.",
+                        website: "https://cognizin.com/",
+                        contact: "Contact Kyowa Hakko"
+                    },
+                    {
+                        name: "Bacognize®",
+                        supplier: "Verdure Sciences",
+                        type: "Bacopa Monnieri Extract",
+                        dosage: "300mg / day",
+                        price: "₹4,000 - ₹6,000 / kg",
+                        research: "Placebo-controlled Studies",
+                        clinicalFindings: "Clinically proven to support memory, focus, and mood while reducing stress.",
+                        claims: "Cognition + memory support • Natural adaptogen",
+                        features: "Standardized to specific active compounds (Bacosides) to optimize memory and mental stamina naturally.",
+                        website: "https://vs-corp.com/bacognize/",
+                        contact: "Contact Verdure Sciences"
+                    },
+                    {
+                        name: "Rhodiolife®",
+                        supplier: "Nektium",
+                        type: "Rhodiola Rosea Extract",
+                        dosage: "200mg / day",
+                        price: "₹12,000 - ₹18,000 / kg",
+                        research: "Athletic & Cognitive Clinicals",
+                        clinicalFindings: "Helps the body adapt to physical and mental stress, reducing fatigue and improving mental performance.",
+                        claims: "Stress management + mental performance • Fatigue reduction",
+                        features: "Sourced from the pristine Altai Mountains, matching the exact phytochemical profile of the legendary 'golden root'.",
+                        website: "https://nektium.com/rhodiolife/",
+                        contact: "Contact Nektium"
+                    }
+                ]
+            },
+            "gut": {
+                title: "Gut Health & Digestion",
+                desc: "Probiotics, prebiotics, and gut motility enhancers.",
+                items: [
+                    {
+                        name: "LactoSpore®",
+                        supplier: "Sabinsa",
+                        type: "Bacillus coagulans MTCC 5856",
+                        dosage: "1-2 Billion CFU (15mg - 30mg)",
+                        price: "₹5,000 - ₹8,000 / kg",
+                        research: "Multiple Human Trials",
+                        clinicalFindings: "Highly stable probiotic that survives stomach acid and clinical proven to manage IBS symptoms.",
+                        claims: "Stable probiotic • India-friendly • Survives stomach acid",
+                        features: "Does not require refrigeration. It is a spore-forming bacteria, making it highly stable for gummies, baked goods, and hot beverages.",
+                        website: "https://lactospore.com/",
+                        contact: "info@sabinsa.com"
+                    },
+                    {
+                        name: "PreforPro®",
+                        supplier: "ADM / Deerland",
+                        type: "Bacteriophage Prebiotic",
+                        dosage: "15mg / day",
+                        price: "₹35,000 - ₹45,000 / kg",
+                        research: "Clinically Studied",
+                        clinicalFindings: "Destroys specific bad bacteria (E. coli) in the gut, making room for good bacteria to thrive within hours.",
+                        claims: "Next-gen gut microbiome support • Works in hours, not days",
+                        features: "Not a fiber, but a bacteriophage. It doesn't cause gas or bloating like traditional fiber prebiotics and requires a tiny 15mg dose.",
+                        website: "https://deerland.com/preforpro/",
+                        contact: "Contact ADM"
+                    },
+                    {
+                        name: "Fibersol®-2",
+                        supplier: "ADM / Matsutani",
+                        type: "Digestion Resistant Maltodextrin",
+                        dosage: "5g - 10g / day",
+                        price: "₹800 - ₹1,500 / kg",
+                        research: "Over 100+ Studies",
+                        clinicalFindings: "Helps maintain intestinal regularity, attenuates post-meal blood sugar spikes, and feeds beneficial gut microbes.",
+                        claims: "Digestion + blood sugar control + gut health",
+                        features: "A highly soluble prebiotic fiber that mixes clear in water. Excellent digestive tolerance with zero gritty taste.",
+                        website: "https://www.fibersol.com/",
+                        contact: "Contact ADM"
+                    },
+                    {
+                        name: "Livaux®",
+                        supplier: "Anagenix",
+                        type: "Gold Kiwifruit Powder",
+                        dosage: "600mg / day",
+                        price: "₹4,000 - ₹6,000 / kg",
+                        research: "Gold-standard Clinicals",
+                        clinicalFindings: "Specifically proven to increase Faecalibacterium prausnitzii (F. prau) levels, improving bowel motility and reducing constipation.",
+                        claims: "Relieves constipation • Improves gut motility • Natural kiwifruit active",
+                        features: "Derived from non-GMO New Zealand gold kiwifruit. It is a targeted prebiotic for overall gut restoration.",
+                        website: "https://anagenix.com/products/livaux/",
+                        contact: "Contact Anagenix"
+                    }
+                ]
+            },
+            "vitality": {
+                title: "Energy, Vitality & Performance",
+                desc: "Clinical ingredients for endurance, hormones, and systemic energy.",
+                items: [
+                    {
+                        name: "Saberry® (Amla Extract)",
+                        supplier: "Sabinsa",
+                        type: "Standardized Amla Extract",
+                        dosage: "500mg / day",
+                        price: "₹3,000 - ₹5,000 / kg",
+                        research: "Various Clinical Studies",
+                        clinicalFindings: "Potent antioxidant that supports healthy energy levels and protects against cellular oxidative stress.",
+                        claims: "Antioxidant + Energy support",
+                        features: "Standardized to <b>10% Beta-glucogallin</b>. It is a broad-spectrum adaptogen that provides sustained cellular energy.",
+                        website: "https://sabinsa.com/product/saberry/",
+                        contact: "info@sabinsa.com"
+                    },
+                    {
+                        name: "BeetElite® (Dietary Nitrates)",
+                        supplier: "HumanN / Premium Extractors",
+                        type: "High-Nitrate Beetroot Extract",
+                        dosage: "5g - 10g / day",
+                        price: "₹1,500 - ₹3,000 / kg",
+                        research: "Sports Science Clinicals",
+                        clinicalFindings: "Increases Nitric Oxide (NO) production, improving blood flow, oxygen delivery, and athletic endurance.",
+                        claims: "Endurance + blood flow • Natural Nitric Oxide booster",
+                        features: "Concentrated dietary nitrates from beetroot. Essential for pre-workout and cardiovascular performance.",
+                        website: "#",
+                        contact: "Premium Extractors"
+                    },
+                    {
+                        name: "Testofen®",
+                        supplier: "Gencor",
+                        type: "Fenugreek Extract",
+                        dosage: "600mg / day",
+                        price: "₹5,000 - ₹7,000 / kg",
+                        research: "Multiple Human Clinicals",
+                        clinicalFindings: "Clinically proven to support healthy free testosterone levels, enhance sexual desire, and build muscle mass.",
+                        claims: "Testosterone + vitality • Enhances muscle mass",
+                        features: "Standardized to 50% Fenuside™. It is the global standard for men's vitality and sports nutrition products.",
+                        website: "https://gencorpacific.com/ingredients/testofen",
+                        contact: "Contact Gencor"
+                    },
+                    {
+                        name: "Lustriva®",
+                        supplier: "Nutrition21",
+                        type: "Arginine Silicate + Magnesium Biotinate",
+                        dosage: "160mg / day",
+                        price: "₹35,000 - ₹45,000 / kg",
+                        research: "Clinical Trials",
+                        clinicalFindings: "Improves hair growth/thickness and uniquely supports energy metabolism while improving skin elasticity.",
+                        claims: "Hair growth + energy metabolism",
+                        features: "A unique, highly bioavailable complex. Provides 40x more soluble biotin than standard biotin, enhancing metabolic energy and beauty.",
+                        website: "https://nutrition21.com/lustriva/",
+                        contact: "Contact Nutrition21"
+                    }
+                ]
+            },
+            "weightloss": {
+                title: "Weight Management & Fat Loss",
+                desc: "Clinically proven thermogenics and appetite suppressants.",
+                items: [
+                    {
+                        name: "Slimaluma®",
+                        supplier: "Gencor",
+                        type: "Caralluma Fimbriata Extract",
+                        dosage: "1000mg / day",
+                        price: "₹3,500 - ₹5,000 / kg",
+                        research: "Multiple Global Clinicals",
+                        clinicalFindings: "Clinically proven to suppress appetite naturally, block fat formation, and significantly reduce waist circumference.",
+                        claims: "Natural appetite suppressant • Helps reduce waist circumference",
+                        features: "A patented, standardized extract of Caralluma fimbriata, traditionally used in India to stave off hunger during long hunts. Safe and effective for healthy weight management.",
+                        website: "https://gencorpacific.com/ingredients/slimaluma",
+                        contact: "Contact Gencor"
+                    },
+                    {
+                        name: "Capsimax®",
+                        supplier: "OmniActive Health Technologies",
+                        type: "Capsicum Extract (Pelletized)",
+                        dosage: "100mg / day",
+                        price: "₹8,000 - ₹12,000 / kg",
+                        research: "Extensive Clinical Studies",
+                        clinicalFindings: "Increases resting energy expenditure (REE) by approximately 100+ calories per day without causing jitteriness or elevating heart rate.",
+                        claims: "Boosts resting metabolism • Supports lipolysis (fat breakdown) • Thermogenic",
+                        features: "Utilizes <b>OmniBead™ beadlet technology</b> to encapsulate highly active, natural capsicum extract. This ensures controlled release in the intestines, preventing oral and gastric irritation.",
+                        website: "https://omniactives.com/product/capsimax/",
+                        contact: "Contact OmniActive"
+                    },
+                    {
+                        name: "Meratrim®",
+                        supplier: "Laila Nutraceuticals / InterHealth",
+                        type: "Sphaeranthus indicus & Garcinia mangostana",
+                        dosage: "800mg / day (divided doses)",
+                        price: "₹10,000 - ₹15,000 / kg",
+                        research: "Double-Blind, Placebo-Controlled",
+                        clinicalFindings: "Clinically shown to reduce body weight and waist/hip size significantly within 14 days, targeting fat cell formation and breakdown.",
+                        claims: "Visible results in 2 weeks • Targets stubborn belly fat",
+                        features: "A proprietary, synergistic blend of two botanical extracts. It makes it harder for fat cells to multiply, decreases the amount of fat they pick up from the bloodstream, and helps fat cells burn stored fat.",
+                        website: "#",
+                        contact: "Contact Laila Nutraceuticals"
+                    },
+                    {
+                        name: "InnoSlim®",
+                        supplier: "NuLiv Science",
+                        type: "Panax notoginseng & Astragalus membranaceus",
+                        dosage: "250mg / day",
+                        price: "₹20,000 - ₹28,000 / kg",
+                        research: "In-vivo and Human Trials",
+                        clinicalFindings: "Supports weight loss by regulating glucose and fat metabolism, increasing AMPK activation and increasing adiponectin levels.",
+                        claims: "Supports healthy metabolism • Decreases glucose absorption",
+                        features: "A stimulant-free, 100% plant-based ingredient that supports weight management and metabolic health by down-regulating glucose absorption in the gut and increasing glucose uptake in muscle cells.",
+                        website: "https://nulivscience.com/ingredients/innoslim/",
+                        contact: "Contact NuLiv Science"
+                    }
+                ]
+            },
+            "multi": {
+                title: "Multi-Benefit Innovation",
+                desc: "High-impact ingredients offering systemic benefits across multiple categories.",
+                items: [
+                    {
+                        name: "BCM-95® (Curcugreen®)",
+                        supplier: "Arjuna Natural",
+                        type: "100% Turmeric Extract",
+                        dosage: "500mg / day",
+                        price: "₹8,000 - ₹12,000 / kg",
+                        research: "80+ Published Studies",
+                        clinicalFindings: "Systemic action: Proven efficacy in joint support, mood enhancement, and systemic inflammation reduction.",
+                        claims: "Anti-inflammatory + skin + joints • 7x More Bioavailable",
+                        features: "A unique formulation containing <b>curcuminoids combined with Ar-turmerone</b>. An all-in-one active for holistic health.",
+                        website: "https://arjunanatural.com/bcm-95-curcugreen/",
+                        contact: "mail@arjunanatural.com"
+                    },
+                    {
+                        name: "Boswellin®",
+                        supplier: "Sabinsa",
+                        type: "Boswellia Serrata Extract",
+                        dosage: "250mg - 500mg / day",
+                        price: "₹4,000 - ₹6,000 / kg",
+                        research: "Extensive Clinicals",
+                        clinicalFindings: "Clinically proven to reduce joint pain, improve mobility, and inhibit the pro-inflammatory 5-LOX enzyme.",
+                        claims: "Joints + systemic inflammation reduction",
+                        features: "Standardized to specifically high levels of <b>AKBA (Acetyl-11-keto-beta-boswellic acid)</b>, the most active compound for fighting inflammation.",
+                        website: "https://sabinsa.com/product/boswellin/",
+                        contact: "info@sabinsa.com"
+                    }
+                ]
+            },
+            "fibers": {
+                title: "Specialty Fibers",
+                desc: "Natural fibers for gut health and formulations.",
+                items: [
+                    {
+                        name: "NUTRIOSE® Soluble Fiber",
+                        supplier: "Roquette",
+                        type: "Resistant Dextrin (Corn/Wheat)",
+                        dosage: "5g - 15g / day",
+                        price: "₹300 - ₹500 / kg",
+                        research: "Extensive Clinical Trials",
+                        clinicalFindings: "Clinically proven to provide outstanding digestive tolerance, act as a prebiotic, moderate blood glucose levels, and support satiety for weight management.",
+                        claims: "Outstanding digestive tolerance • Prebiotic effect • Blood sugar & weight management",
+                        features: "A versatile, plant-based soluble fiber. <b>Low-FODMAP certified & NutraStrong™ Prebiotic Verified</b>. It is fermented slowly in the colon, ensuring no gas/bloating. Ideal for fiber enrichment and sugar reduction.",
+                        website: "https://www.roquette.com/food-nutrition/our-ingredients/nutriose-soluble-fiber",
+                        contact: "Contact Roquette India"
+                    },
+                    {
+                        name: "Fibregum™ (Acacia Fiber)",
+                        supplier: "Nexira",
+                        type: "Soluble Dietary Fiber",
+                        dosage: "5g - 10g / day",
+                        price: "₹800 - ₹1,200 / kg",
+                        claims: "Bifidogenic effect, gut barrier restoration, high digestive tolerance.",
+                        features: "This is <b>100% all-natural acacia gum</b>. Widely used in clean label products. Its biggest advantage is <b>high digestive tolerance</b> (does not cause gas/bloating) and it is a <b>strong prebiotic</b>.",
+                        website: "https://www.nexira.com/ingredient-solutions/",
+                        contact: "Contact via Nexira website"
+                    },
+                    {
+                        name: "Galacto-oligosaccharides (GOS)",
+                        supplier: "Various Suppliers",
+                        type: "Prebiotic Fiber",
+                        dosage: "2g - 5g / day",
+                        price: "₹400 - ₹800 / kg",
+                        research: "Numerous Clinical Studies",
+                        clinicalFindings: "Clinically proven to significantly increase Bifidobacteria and Lactobacilli in the gut, supporting both digestive and immune health.",
+                        claims: "Supports healthy digestion • Strong prebiotic effect • Promotes beneficial gut bacteria",
+                        features: "GOS is a highly stable, soluble <b>prebiotic fiber</b> derived from lactose. It remains intact through the upper digestive tract to selectively nourish beneficial bacteria in the colon.",
+                        website: "#",
+                        contact: "Standard Suppliers"
+                    }
+                ]
+            },
+            "sweeteners": {
+                title: "Sweeteners",
+                desc: "Low GI sweeteners and sugar replacements.",
+                items: [
+                    {
+                        name: "Xylitol",
+                        supplier: "Various",
+                        type: "Natural Sweetener (Sugar Alcohol)",
+                        dosage: "As per taste (Max 40-50g/day to avoid laxative effect)",
+                        price: "₹350 - ₹500 / kg",
+                        claims: "Tooth-friendly, low glycemic index, 40% fewer calories than sugar.",
+                        features: "Xylitol is best for <b>dental health (cavity prevention)</b>. It prevents oral bacteria from producing acid. Used as a <b>1:1 sugar replacement</b> in gums, mints, and diabetic-friendly products.",
+                        website: "#",
+                        contact: "Standard Suppliers"
+                    },
+                    {
+                        name: "Maltitol",
+                        supplier: "Various",
+                        type: "Sweetener (Sugar Alcohol)",
+                        dosage: "As per taste",
+                        price: "₹150 - ₹300 / kg",
+                        claims: "Sugar-free substitute, prevents dental caries.",
+                        features: "Maltitol's taste and texture are exactly <b>like sugar (75-90% sweetness)</b>, making it highly popular in sugar-free chocolates and baked goods. However, consuming in large amounts may have a <b>mild laxative effect</b>.",
+                        website: "#",
+                        contact: "Standard Suppliers"
+                    }
+                ]
+            },
+            "specialty": {
+                title: "Specialty Extracts",
+                desc: "Extracts for heart health, eye health, cognitive function, and future innovations.",
+                items: [
+                    {
+                        name: "Tri-Low® (Amla Extract)",
+                        supplier: "Arjuna Natural",
+                        type: "Full Spectrum Amla Extract",
+                        dosage: "500mg / day",
+                        price: "₹3,500 - ₹5,500 / kg",
+                        research: "Multiple Clinical Studies",
+                        clinicalFindings: "Clinically proven to improve lipid profiles, support cardiovascular health, decrease bad cholesterol (LDL-C), and increase good cholesterol (HDL-C).",
+                        claims: "Supports cardiovascular health • Maintains healthy cholesterol levels • Powerful natural antioxidant",
+                        features: "A clean, clinically proven extract standardized with <b>ALA bound diacyl glycerol</b>. Extracted exclusively from fresh, ripe Indian gooseberries preserving natural Vitamin C.",
+                        website: "https://arjunanatural.com/tri-low/",
+                        contact: "mail@arjunanatural.com"
+                    },
+                    {
+                        name: "Zembrin®",
+                        supplier: "PLT Health Solutions",
+                        type: "Sceletium tortuosum Extract",
+                        dosage: "25mg / day",
+                        price: "₹80,000 - ₹1,00,000 / kg",
+                        claims: "Experiential cognitive support, mood enhancement, stress relief.",
+                        features: "A patented botanical extract that quickly improves <b>focus and mood</b>. It is <b>fast-acting</b> (within 2 hours) and has been clinically studied for stress relief and cognitive function.",
+                        website: "https://www.zembrin.com/",
+                        contact: "Contact PLT Health"
+                    },
+                    {
+                        name: "Lutemax 2020®",
+                        supplier: "OmniActive Health",
+                        type: "Lutein & Zeaxanthin",
+                        dosage: "10mg - 20mg Lutein / day",
+                        price: "₹15,000 - ₹25,000 / kg",
+                        claims: "Blue light protection, eye strain relief, visual performance.",
+                        features: "Contains a <b>5:1 ratio of Lutein and Zeaxanthin Isomers</b>, as naturally found in the diet. It protects eyes from <b>blue light emitted by digital screens</b> and supports macular health.",
+                        website: "https://omniactives.com/product/lutemax2020/",
+                        contact: "Contact OmniActive"
+                    }
+                ]
+            },
+            "suppliers": {
+                title: "Supplier Details & Contacts",
+                desc: "Direct contact information, emails, and addresses for ingredient manufacturers operating in India.",
+                items: [
+                    {
+                        name: "Arjuna Natural Pvt. Ltd.",
+                        supplier: "Manufacturer",
+                        type: "Indian HQ",
+                        claims: "BCM-95 (Curcugreen), Shoden Ashwagandha, Tri-Low",
+                        features: "<b>Address:</b> Bank Road, Aluva, Kochi, Kerala - 683101, India.<br><br><b>Email:</b> mail@arjunanatural.com<br><b>Phone:</b> +91-484-408-0400",
+                        website: "https://arjunanatural.com/",
+                        contact: "Direct Sales"
+                    },
+                    {
+                        name: "Sami-Sabinsa Group",
+                        supplier: "Manufacturer",
+                        type: "Indian HQ",
+                        claims: "Curcumin C3 Complex, Saberry, Boswellin, LactoSpore",
+                        features: "<b>Address:</b> 19/1 & 19/2, I Main, II Phase, Peenya Industrial Area, Bengaluru - 560058, Karnataka.<br><br><b>Email:</b> info@sabinsa.com<br><b>Phone:</b> +91-80-2839-7973",
+                        website: "https://sabinsa.com/",
+                        contact: "Direct Sales"
+                    },
+                    {
+                        name: "Ixoreal Biomed",
+                        supplier: "Manufacturer",
+                        type: "Indian HQ",
+                        claims: "KSM-66 Ashwagandha",
+                        features: "<b>Address:</b> 14-8-281/1, Hospital Road, Hyderabad, Telangana.<br><br><b>Email:</b> info@ksm66ashwagandhaa.com<br><b>Phone:</b> +91-96525-96525",
+                        website: "https://ksm66ashwagandhaa.com/",
+                        contact: "Direct Sales"
+                    },
+                    {
+                        name: "OmniActive Health Technologies",
+                        supplier: "Manufacturer",
+                        type: "Indian HQ",
+                        claims: "Lutemax 2020, Capsimax",
+                        features: "<b>Address:</b> 6th Floor, A Wing, Prism Tower, Mindspace, Malad (West), Mumbai - 400064, Maharashtra.<br><br><b>Email:</b> info@omniactives.com<br><b>Phone:</b> +91-22-4321-0000",
+                        website: "https://omniactives.com/",
+                        contact: "Direct Sales"
+                    },
+                    {
+                        name: "Roquette India",
+                        supplier: "Manufacturer",
+                        type: "Global MNC",
+                        claims: "NUTRIOSE® Soluble Fiber",
+                        features: "<b>Address:</b> Unit No. 401 & 402, 4th Floor, 'B' Wing, Delphi Building, Hiranandani Business Park, Powai, Mumbai - 400076, Maharashtra.<br><br><b>Note:</b> A leading global supplier of plant-based ingredients and soluble fibers.",
+                        website: "https://www.roquette.com/",
+                        contact: "B2B Channel"
+                    },
+                    {
+                        name: "Gencor Pacific",
+                        supplier: "Manufacturer",
+                        type: "Global MNC",
+                        claims: "Slimaluma, Testofen",
+                        features: "<b>Note:</b> Gencor provides clinically researched botanical ingredients. For Indian distribution and pricing, you need to contact them directly or through their channel partners.<br><br><b>Email:</b> info@gencorpacific.com",
+                        website: "https://gencorpacific.com/",
+                        contact: "Direct/Distributor"
+                    },
+                    {
+                        name: "Laila Nutraceuticals",
+                        supplier: "Manufacturer",
+                        type: "Indian HQ",
+                        claims: "Meratrim",
+                        features: "<b>Address:</b> 40-15-14, Brindavan Colony, Labbipet, Vijayawada - 520010, Andhra Pradesh, India.<br><br><b>Email:</b> info@lailanutra.com<br><b>Phone:</b> +91-866-667-4666",
+                        website: "http://lailanutra.com/",
+                        contact: "Direct Sales"
+                    },
+                    {
+                        name: "NuLiv Science",
+                        supplier: "Manufacturer",
+                        type: "Global MNC",
+                        claims: "InnoSlim, AstraGin",
+                        features: "<b>Note:</b> NuLiv Science focuses on evidence-based, patented ingredients. They operate globally; for the Indian market, please reach out to their international sales team.<br><br><b>Email:</b> sales@nulivusa.com",
+                        website: "https://nulivscience.com/",
+                        contact: "International Sales"
+                    },
+                    {
+                        name: "Gelita India Pvt. Ltd.",
+                        supplier: "Corporate Office",
+                        type: "Global MNC",
+                        claims: "Verisol Bioactive Collagen Peptides",
+                        features: "<b>Address:</b> 5th Floor, Building No. 9, Raheja Mindspace, Madhapur, Hyderabad, Telangana.<br><br><b>Email:</b> service.india@gelita.com",
+                        website: "https://www.gelita.com/",
+                        contact: "B2B Channel"
+                    },
+                    {
+                        name: "Seppic India",
+                        supplier: "Corporate Office",
+                        type: "Global MNC",
+                        claims: "Ceramosides",
+                        features: "<b>Address:</b> 3rd Floor, C Wing, NESCO IT Park, Goregaon East, Mumbai - 400063, Maharashtra.<br><br><b>Email:</b> seppic.india@airliquide.com<br><b>Phone:</b> +91-22-4022-2600",
+                        website: "https://www.seppic.com/",
+                        contact: "B2B Channel"
+                    },
+                    {
+                        name: "IMCD India (Mansi Tyagi)",
+                        supplier: "Authorized Distributor",
+                        type: "Sales Partner",
+                        claims: "NUTRIOSE, Zembrin, Pycnogenol, Peptan, NutroxSun",
+                        features: "<b>Contact Person:</b> Mansi Tyagi (Asst. Manager Sales – Nutrition/Dairy/Beverage)<br><b>Address:</b> 3rd Floor, Plot no. C7, Sector 3 Phase 1, Noida – 201301, India.<br><br><b>Email:</b> Mansi.Tyagi@imcd.in<br><b>Phone:</b> +91-9211997743",
+                        website: "https://www.imcdgroup.com/",
+                        contact: "Direct Sales (IMCD)"
+                    },
+                    {
+                        name: "Global Channel Partners (DKSH)",
+                        supplier: "Authorized Distributors",
+                        type: "Import Partners",
+                        claims: "Zembrin, Pycnogenol, Peptan, NutroxSun",
+                        features: "For ingredients from PLT Health, Horphag, and Rousselot, we can contact their official Indian channel partners like DKSH. We can send an inquiry to the manufacturer's global email and they will route it to the Indian distributor.",
+                        website: "#",
+                        contact: "Distributor Network"
+                    }
+                ]
+            }
+        };
+
+        // Base Categories Configuration
+        const baseCategories = [
+            { id: "turmeric", label: "Turmeric & Curcumin", icon: "fa-mortar-pestle" },
+            { id: "herbs", label: "Herbs", icon: "fa-seedling" },
+            { id: "beauty", label: "Beauty (Skin/Hair)", icon: "fa-spa" },
+            { id: "sleep", label: "Sleep & Calm", icon: "fa-moon" },
+            { id: "brain", label: "Brain & Mood", icon: "fa-brain" },
+            { id: "gut", label: "Gut Health", icon: "fa-bacteria" },
+            { id: "vitality", label: "Energy & Vitality", icon: "fa-bolt" },
+            { id: "weightloss", label: "Weight Loss", icon: "fa-weight-scale" },
+            { id: "multi", label: "Multi-Benefit", icon: "fa-layer-group" },
+            { id: "fibers", label: "Fibers", icon: "fa-wheat-awn" },
+            { id: "sweeteners", label: "Sweeteners", icon: "fa-cubes-stacked" },
+            { id: "specialty", label: "Specialty", icon: "fa-star" },
+            { id: "suppliers", label: "Supplier Details", icon: "fa-address-book" },
+            { id: "notes", label: "My Notes", icon: "fa-note-sticky" },
+            { id: "formulas", label: "Formulas", icon: "fa-flask" }
+        ];
+
+        // App State
+        let currentCategory = "turmeric";
+        let activeCategories = [];
+
+        // DOM Elements
+        const tabsContainer = document.getElementById('tabs-container');
+        const sectionTitle = document.getElementById('section-title');
+        const sectionDesc = document.getElementById('section-desc');
+        const contentGrid = document.getElementById('content-grid');
+
+        // Initialize App UI based on user role
+        function initApp() {
+            // Hide specific controls based on role
+            if (currentUser.role === 'guest') {
+                document.getElementById('tabs-container').style.display = 'none'; // Hide all tabs
+                renderGuestDashboard();
+            } else {
+                document.getElementById('tabs-container').style.display = 'flex';
+                activeCategories = [...baseCategories];
+                currentCategory = "turmeric"; // Default for Admin
+                renderTabs();
+                renderContent(currentCategory);
+            }
+            
+            // Show header controls
+            document.getElementById('user-controls').classList.remove('hidden');
+            document.getElementById('user-controls').classList.add('flex');
+            document.getElementById('welcome-user').textContent = `Hi, ${currentUser.name}`;
+        }
+
+        // Render Navigation Tabs
+        function renderTabs() {
+            tabsContainer.innerHTML = '';
+            activeCategories.forEach(cat => {
+                const btn = document.createElement('button');
+                const isActive = cat.id === currentCategory;
+                
+                let extraClass = '';
+                
+                if (cat.id === 'formulas') {
+                    extraClass += 'border-brand-dark font-bold border ';
+                    // Jab tab active nahi hai, tabhi green text dikhega. Active hone par white ho jayega.
+                    if (!isActive) {
+                        extraClass += 'text-brand-dark ';
+                    }
+                }
+
+                btn.className = `${extraClass}whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-2 ${isActive ? 'tab-active' : 'tab-inactive'}`;
+                btn.innerHTML = `<i class="fa-solid ${cat.icon}"></i> ${cat.label} ${cat.id === 'formulas' && !isFormulasUnlocked ? '<i class="fa-solid fa-lock text-[10px] ml-1"></i>' : ''}`;
+                
+                btn.onclick = () => {
+                    // Check protection for formulas tab
+                    if (cat.id === 'formulas' && !isFormulasUnlocked) {
+                        document.getElementById('section-unlock-password').value = '';
+                        document.getElementById('section-unlock-error').classList.add('hidden');
+                        openModal('section-unlock-modal');
+                        return; // Stop rendering until unlocked
+                    }
+                    
+                    currentCategory = cat.id;
+                    renderTabs(); // Re-render to update active states
+                    renderContent(currentCategory); // Load new content
+                };
+                
+                tabsContainer.appendChild(btn);
+            });
+        }
+
+        // Section Unlock Logic for Formulas
+        function unlockFormulasSection() {
+            const pwd = document.getElementById('section-unlock-password').value;
+            if (pwd === 'MKAK@123') {
+                isFormulasUnlocked = true;
+                closeModal('section-unlock-modal');
+                currentCategory = 'formulas';
+                renderTabs();
+                renderContent('formulas');
+            } else {
+                document.getElementById('section-unlock-error').classList.remove('hidden');
+            }
+        }
+
+        document.getElementById('section-unlock-password').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                unlockFormulasSection();
+            }
+        });
+
+        // Render Content Cards based on selected category
+        function renderContent(catId) {
+            // Check if it's Malti's Special Purchase Directory
+            if (catId === 'purchase_dir') {
+                renderPurchaseDirectory();
+                return;
+            }
+            
+            // Check if it's the Notes section
+            if (catId === 'notes') {
+                renderNotesSection();
+                return;
+            }
+
+            // Check if it's the Formulas section
+            if (catId === 'formulas') {
+                renderFormulasSection();
+                return;
+            }
+
+            const data = db[catId];
+            
+            // Update Header
+            sectionTitle.textContent = data.title;
+            sectionDesc.textContent = data.desc;
+            
+            // Clear current cards
+            contentGrid.innerHTML = '';
+            
+            // Normal Categories rendering
+            data.items.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 card-hover flex flex-col relative group";
+                
+                // Construct inner HTML dynamically based on available fields
+                let tagsHTML = '';
+
+                if (item.type) {
+                    tagsHTML += `
+                    <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-md font-medium">
+                        <i class="fa-solid fa-tag mr-1"></i> ${item.type}
+                    </span>`;
+                }
+                
+                if (item.dosage) {
+                    tagsHTML += `
+                    <span class="bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded-md font-medium">
+                        <i class="fa-solid fa-pills mr-1"></i> Dose: ${item.dosage}
+                    </span>`;
+                }
+
+                if (item.price) {
+                    tagsHTML += `
+                    <span class="bg-emerald-50 text-emerald-700 text-xs px-2 py-1 rounded-md font-medium border border-emerald-100">
+                        <i class="fa-solid fa-indian-rupee-sign mr-1"></i> ${item.price}
+                    </span>`;
+                }
+                
+                if (item.research) {
+                    tagsHTML += `
+                    <span class="bg-purple-50 text-purple-700 text-xs px-2 py-1 rounded-md font-medium">
+                        <i class="fa-solid fa-microscope mr-1"></i> ${item.research}
+                    </span>`;
+                }
+
+                let clinicalHTML = '';
+                if (item.clinicalFindings) {
+                    clinicalHTML = `
+                        <div class="mt-2 bg-gray-50 p-3 rounded-lg border-l-4 border-brand">
+                            <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wide mb-1">Clinical Findings:</h4>
+                            <p class="text-sm text-gray-700 leading-relaxed italic">${item.clinicalFindings}</p>
+                        </div>
+                    `;
+                }
+
+                let claimsHTML = '';
+                if (item.claims) {
+                    claimsHTML = `
+                        <div class="bg-yellow-50 p-3 rounded-lg border border-yellow-100 mt-auto">
+                            <h4 class="text-xs font-bold text-yellow-800 mb-1"><i class="fa-solid ${catId === 'suppliers' ? 'fa-box-open' : 'fa-check-circle'} mr-1"></i> ${catId === 'suppliers' ? 'Key Portfolio Ingredients:' : 'Approved Label Claims:'}</h4>
+                            <p class="text-sm font-medium text-yellow-900">${item.claims}</p>
+                        </div>
+                    `;
+                } else {
+                    claimsHTML = `<div class="mt-auto"></div>`; // spacer
+                }
+
+                card.innerHTML = `
+                    <div class="bg-brand-light px-5 py-4 border-b border-gray-100 flex justify-between items-start relative">
+                        <div class="pr-8">
+                            <div class="text-xs font-bold text-brand uppercase tracking-wider mb-1">${item.supplier}</div>
+                            <h3 class="text-xl font-bold text-gray-800">${item.name}</h3>
+                        </div>
+                        <button onclick="shareToGuest('ingredient', '${catId}', ${index})" class="absolute top-4 right-4 text-gray-400 hover:text-brand bg-white rounded-full p-2 shadow-sm border opacity-0 group-hover:opacity-100 transition-all" title="Share with Guest">
+                            <i class="fa-solid fa-share-nodes"></i>
+                        </button>
+                    </div>
+                    <div class="p-5 flex-grow flex flex-col gap-4">
+                        
+                        <!-- Tags -->
+                        <div class="flex flex-wrap gap-2">
+                            ${tagsHTML}
+                        </div>
+
+                        <!-- Clinical Research -->
+                        ${clinicalHTML}
+
+                        <!-- Highlights/Features -->
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-500 mb-1">${catId === 'suppliers' ? 'Contact & Address:' : 'Ingredient Profile:'}</h4>
+                            <p class="text-sm text-gray-700 leading-relaxed">${item.features}</p>
+                        </div>
+
+                        <!-- Claims / Portfolio -->
+                        ${claimsHTML}
+                    </div>
+                    
+                    <!-- Footer Links -->
+                    <div class="bg-gray-50 px-5 py-3 border-t border-gray-100 flex justify-between items-center text-sm">
+                        <div class="text-gray-600 font-medium">
+                            <i class="fa-solid ${catId === 'suppliers' ? 'fa-headset' : 'fa-envelope'} text-brand-dark mr-1"></i> ${item.contact}
+                        </div>
+                        ${item.website && item.website !== '#' ? 
+                            `<a href="${item.website}" target="_blank" class="text-brand hover:text-brand-dark font-semibold transition-colors flex items-center gap-1">
+                                Website <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                            </a>` 
+                            : '<span class="text-gray-400">N/A</span>'
+                        }
+                    </div>
+                `;
+                contentGrid.appendChild(card);
+            });
+        }
+
+        // --- NEW: PURCHASE DIRECTORY LOGIC FOR MALTI ---
+        function renderPurchaseDirectory() {
+            sectionTitle.innerHTML = `Master Product Directory <span class="bg-brand text-white text-xs px-2 py-1 rounded-full align-middle ml-2">Purchase View</span>`;
+            sectionDesc.textContent = "Click on any product to view its comprehensive supplier contact details.";
+            
+            contentGrid.innerHTML = `
+                <div class="col-span-full flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 rounded-xl shadow-sm border border-brand-accent/30 mb-2 gap-3">
+                    <div>
+                        <h3 class="text-brand-dark font-bold"><i class="fa-solid fa-address-book mr-2"></i>Supplier Quick Access</h3>
+                        <p class="text-xs text-gray-500 mt-1">Showing all database items + custom additions.</p>
+                    </div>
+                    <button onclick="openModal('add-supplier-modal')" class="w-full sm:w-auto bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition-colors flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-plus"></i> Add New Product
+                    </button>
+                </div>
+            `;
+
+            // Gather all products from DB (exclude 'suppliers' tab to avoid duplicates, as it lists companies, not products)
+            let allProducts = [];
+            Object.keys(db).forEach(cat => {
+                if (cat !== 'suppliers') {
+                    db[cat].items.forEach(item => {
+                        allProducts.push({
+                            ...item,
+                            categoryName: db[cat].title
+                        });
+                    });
+                }
+            });
+
+            // Append custom products added by Purchase team
+            allProducts = [...allProducts, ...customProducts];
+
+            // Render clickable list items
+            allProducts.forEach(prod => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-4 rounded-xl shadow-sm border border-gray-100 cursor-pointer card-hover flex justify-between items-center transition-all hover:border-brand-accent";
+                
+                // Attach click event to show Supplier details
+                card.onclick = () => openSupplierInfo(prod);
+                
+                card.innerHTML = `
+                    <div class="flex-grow pr-4">
+                        <div class="flex items-center gap-2 mb-1">
+                            <div class="text-[10px] font-bold text-white bg-brand px-2 py-0.5 rounded uppercase">${prod.supplier}</div>
+                            ${prod.isCustom ? `<span class="text-[9px] bg-yellow-100 text-yellow-800 px-1 rounded border border-yellow-200">Custom Added</span>` : ''}
+                        </div>
+                        <h4 class="text-base font-bold text-gray-800 leading-tight">${prod.name}</h4>
+                    </div>
+                    <div class="bg-gray-50 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-brand group-hover:bg-brand group-hover:text-white transition-colors">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </div>
+                `;
+                contentGrid.appendChild(card);
+            });
+        }
+
+        // Logic to find and display supplier info
+        function openSupplierInfo(prodItem) {
+            const mTitle = document.getElementById('modal-product-name');
+            const mSupName = document.getElementById('modal-supplier-name');
+            const mDetails = document.getElementById('modal-supplier-details');
+            
+            mTitle.textContent = prodItem.name;
+            mSupName.textContent = prodItem.supplier;
+            
+            // Check if it's a custom added product
+            if (prodItem.isCustom) {
+                mDetails.innerHTML = `
+                    <p class="text-sm text-gray-700"><b><i class="fa-solid fa-envelope w-5 text-gray-400"></i> Email:</b> ${prodItem.email || 'N/A'}</p>
+                    <p class="text-sm text-gray-700"><b><i class="fa-solid fa-phone w-5 text-gray-400"></i> Phone:</b> ${prodItem.phone || 'N/A'}</p>
+                    <p class="text-sm text-gray-700"><b><i class="fa-solid fa-map-location-dot w-5 text-gray-400"></i> Details/Address:</b><br/> ${prodItem.address || 'No additional details provided.'}</p>
+                `;
+            } else {
+                // Try to find detailed supplier info from the 'suppliers' database
+                let detailedSupplier = db.suppliers.items.find(s => 
+                    s.name.toLowerCase().includes(prodItem.supplier.toLowerCase()) || 
+                    prodItem.supplier.toLowerCase().includes(s.name.toLowerCase())
+                );
+
+                if (detailedSupplier) {
+                    mDetails.innerHTML = `
+                        <div class="text-sm text-gray-700 leading-relaxed">${detailedSupplier.features}</div>
+                        ${detailedSupplier.website !== '#' ? `<div class="mt-3 text-sm"><a href="${detailedSupplier.website}" target="_blank" class="text-brand font-bold hover:underline"><i class="fa-solid fa-globe mr-1"></i> Visit Official Website</a></div>` : ''}
+                    `;
+                } else {
+                    // Fallback to basic product contact info
+                    mDetails.innerHTML = `
+                        <p class="text-sm text-gray-700"><b><i class="fa-solid fa-headset w-5 text-gray-400"></i> Contact Route:</b> ${prodItem.contact}</p>
+                        ${prodItem.website !== '#' ? `<p class="text-sm mt-2"><a href="${prodItem.website}" target="_blank" class="text-brand font-bold hover:underline"><i class="fa-solid fa-globe mr-1"></i> Product Webpage</a></p>` : ''}
+                        <p class="text-xs text-gray-500 mt-3 italic">* Full supplier corporate address not mapped in database. Please use the contact route above.</p>
+                    `;
+                }
+            }
+            
+            openModal('supplier-info-modal');
+        }
+
+        // --- NEW: NOTES SECTION LOGIC ---
+        function renderNotesSection() {
+            sectionTitle.innerHTML = `My Notes <span class="bg-brand text-white text-xs px-2 py-1 rounded-full align-middle ml-2">Personal</span>`;
+            sectionDesc.textContent = "Store your research text or personal notes here.";
+            
+            contentGrid.innerHTML = `
+                <div class="col-span-full flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 rounded-xl shadow-sm border border-brand-accent/30 mb-2 gap-3">
+                    <div>
+                        <h3 class="text-brand-dark font-bold"><i class="fa-solid fa-clipboard-list mr-2"></i>Saved Notes</h3>
+                        <p class="text-xs text-gray-500 mt-1">Your notes are stored securely in your browser.</p>
+                    </div>
+                    <button onclick="openAddNoteModal()" class="w-full sm:w-auto bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition-colors flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-plus"></i> Create Note
+                    </button>
+                </div>
+            `;
+
+            if (userNotes.length === 0) {
+                contentGrid.innerHTML += `
+                    <div class="col-span-full text-center py-10">
+                        <i class="fa-regular fa-folder-open text-4xl text-gray-300 mb-3"></i>
+                        <p class="text-gray-500">No notes found. Create your first note!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Render clickable note items
+            userNotes.forEach((note, index) => {
+                const card = document.createElement('div');
+                card.className = "bg-yellow-50 p-5 rounded-xl shadow-sm border border-yellow-200 cursor-pointer card-hover flex flex-col h-48 transition-all hover:border-yellow-400 relative group";
+                
+                // Show short preview of text or hide if locked
+                let previewText = note.text;
+                if(previewText.length > 100) previewText = previewText.substring(0, 100) + '...';
+                
+                const isLocked = !!note.password;
+                const lockIconHtml = isLocked ? `<i class="fa-solid fa-lock text-brand ml-2 text-sm" title="Password Protected"></i>` : '';
+                const displayPreview = isLocked ? `<span class="text-gray-400 font-medium">*** Content Locked ***</span>` : `"${previewText}"`;
+
+                // Format date nicely
+                const dateObj = new Date(note.date);
+                const dateStr = dateObj.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="text-lg font-bold text-gray-800 line-clamp-1 pr-24" title="${note.subject}">${note.subject}${lockIconHtml}</h4>
+                        <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                            <button onclick="event.stopPropagation(); shareToGuest('note', null, ${index})" class="text-gray-500 hover:text-brand bg-white shadow-sm border rounded-md px-2 py-1 text-xs transition-colors" title="Share with Guest">
+                                <i class="fa-solid fa-share-nodes"></i>
+                            </button>
+                            <button onclick="event.stopPropagation(); promptUnlock(${index}, 'edit')" class="text-gray-500 hover:text-blue-600 bg-white shadow-sm border rounded-md px-2 py-1 text-xs transition-colors" title="Edit Note">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button onclick="event.stopPropagation(); promptUnlock(${index}, 'delete')" class="text-gray-500 hover:text-red-600 bg-white shadow-sm border rounded-md px-2 py-1 text-xs transition-colors" title="Delete Note">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="text-xs text-brand-dark font-medium mb-3"><i class="fa-regular fa-calendar-days mr-1"></i> ${dateStr}</div>
+                    <p class="text-sm text-gray-700 flex-grow overflow-hidden italic">${displayPreview}</p>
+                    <div class="mt-3 text-right">
+                        <span class="text-xs font-bold text-brand uppercase flex items-center justify-end gap-1 group-hover:underline">Read Full <i class="fa-solid fa-arrow-right-long"></i></span>
+                    </div>
+                `;
+                
+                card.onclick = () => promptUnlock(index, 'view');
+                contentGrid.appendChild(card);
+            });
+        }
+
+        function openAddNoteModal() {
+            currentEditingNoteIndex = -1; // Reset to denote new note
+            document.getElementById('add-note-subject').value = '';
+            document.getElementById('add-note-text').value = '';
+            document.getElementById('add-note-password').value = '';
+            document.getElementById('note-modal-title').innerHTML = '<i class="fa-solid fa-plus-circle mr-2"></i>Add New Note';
+            openModal('add-note-modal');
+        }
+
+        function saveNote() {
+            const subject = document.getElementById('add-note-subject').value.trim();
+            const text = document.getElementById('add-note-text').value.trim();
+            const password = document.getElementById('add-note-password').value;
+
+            if (!subject || !text) {
+                alert("Please enter both Subject and Text content.");
+                return;
+            }
+
+            const newNote = {
+                subject: subject,
+                text: text,
+                date: new Date().toISOString(),
+                password: password || null
+            };
+
+            if (currentEditingNoteIndex > -1) {
+                // Update existing note
+                userNotes[currentEditingNoteIndex] = newNote;
+                currentEditingNoteIndex = -1; // reset
+            } else {
+                // Add new note
+                userNotes.unshift(newNote);
+            }
+            
+            localStorage.setItem('nutraUserNotes', JSON.stringify(userNotes));
+            closeModal('add-note-modal');
+            
+            // Sync to Google Sheets
+            syncToGoogleSheet("Personal Note", newNote.subject, newNote.text);
+
+            if (currentCategory === 'notes') {
+                renderNotesSection();
+            }
+        }
+
+        // ---- NOTE SECURITY LOGIC ----
+        function promptUnlock(index, action) {
+            const note = userNotes[index];
+            if (note.password) {
+                noteToUnlockIndex = index;
+                unlockAction = action;
+                document.getElementById('unlock-password-input').value = '';
+                document.getElementById('unlock-error').classList.add('hidden');
+                openModal('unlock-note-modal');
+                // Auto focus password field
+                setTimeout(() => document.getElementById('unlock-password-input').focus(), 100);
+            } else {
+                executeNoteAction(index, action);
+            }
+        }
+
+        function verifyNotePassword() {
+            const pwd = document.getElementById('unlock-password-input').value;
+            const note = userNotes[noteToUnlockIndex];
+            if (note.password === pwd) {
+                closeModal('unlock-note-modal');
+                executeNoteAction(noteToUnlockIndex, unlockAction);
+            } else {
+                document.getElementById('unlock-error').classList.remove('hidden');
+            }
+        }
+
+        // Handle Enter Key for unlock modal
+        document.getElementById('unlock-password-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                verifyNotePassword();
+            }
+        });
+
+        function executeNoteAction(index, action) {
+            if (action === 'view') {
+                viewFullNote(userNotes[index]);
+            } else if (action === 'edit') {
+                openEditNoteModal(index);
+            } else if (action === 'delete') {
+                deleteNote(index);
+            }
+        }
+        // ------------------------------
+
+        function openEditNoteModal(index) {
+            currentEditingNoteIndex = index;
+            const note = userNotes[index];
+            
+            document.getElementById('add-note-subject').value = note.subject;
+            document.getElementById('add-note-text').value = note.text;
+            document.getElementById('add-note-password').value = note.password || '';
+            document.getElementById('note-modal-title').innerHTML = '<i class="fa-solid fa-pen mr-2"></i>Edit Note';
+            
+            openModal('add-note-modal');
+        }
+
+        function viewFullNote(note) {
+            document.getElementById('view-note-title').textContent = note.subject;
+            document.getElementById('view-note-content').textContent = note.text;
+            openModal('view-note-modal');
+        }
+
+        function deleteNote(index) {
+            if(confirm("Are you sure you want to permanently delete this note?")) {
+                userNotes.splice(index, 1);
+                localStorage.setItem('nutraUserNotes', JSON.stringify(userNotes));
+                if (currentCategory === 'notes') {
+                    renderNotesSection();
+                }
+            }
+        }
+
+        // --- NEW: GUEST SHARING & DASHBOARD LOGIC ---
+        function shareToGuest(type, catId, index) {
+            let itemToShare = null;
+            
+            if (type === 'ingredient') {
+                const item = db[catId].items[index];
+                itemToShare = { ...item, shareType: 'ingredient', sourceCatId: catId, sourceIndex: index };
+            } else if (type === 'note') {
+                const note = userNotes[index];
+                if (note.password) {
+                    alert("Locked notes cannot be shared directly. Please remove the password first if you want to share it.");
+                    return;
+                }
+                itemToShare = { ...note, shareType: 'note', sourceIndex: index };
+            }
+
+            // Check if already shared
+            const isAlreadyShared = guestSharedItems.some(i => 
+                (i.shareType === 'ingredient' && i.name === itemToShare.name) || 
+                (i.shareType === 'note' && i.subject === itemToShare.subject)
+            );
+
+            if (isAlreadyShared) {
+                alert("This item is already shared with the Guest.");
+                return;
+            }
+
+            guestSharedItems.push(itemToShare);
+            localStorage.setItem('nutraGuestSharedItems', JSON.stringify(guestSharedItems));
+            alert("Successfully shared with Guest Dashboard!");
+        }
+
+        function removeGuestItem(index) {
+            if(confirm("Remove this item from the Guest Dashboard?")) {
+                guestSharedItems.splice(index, 1);
+                localStorage.setItem('nutraGuestSharedItems', JSON.stringify(guestSharedItems));
+                renderGuestDashboard();
+            }
+        }
+
+        function renderGuestDashboard() {
+            sectionTitle.innerHTML = `Guest Dashboard <span class="bg-blue-500 text-white text-xs px-2 py-1 rounded-full align-middle ml-2"><i class="fa-solid fa-eye mr-1"></i>View Only</span>`;
+            sectionDesc.textContent = "Documents, ingredients, and notes shared with you by the Admin.";
+            
+            contentGrid.innerHTML = '';
+
+            if (guestSharedItems.length === 0) {
+                contentGrid.innerHTML = `
+                    <div class="col-span-full text-center py-10">
+                        <i class="fa-regular fa-folder-open text-4xl text-gray-300 mb-3"></i>
+                        <p class="text-gray-500">Nothing has been shared with you yet.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            guestSharedItems.forEach((item, index) => {
+                const card = document.createElement('div');
+                
+                if (item.shareType === 'ingredient') {
+                    card.className = "bg-white rounded-xl overflow-hidden shadow-sm border border-brand-accent card-hover flex flex-col relative";
+                    
+                    let tagsHTML = '';
+                    if (item.dosage) tagsHTML += `<span class="bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded-md font-medium"><i class="fa-solid fa-pills mr-1"></i> Dose: ${item.dosage}</span>`;
+                    
+                    card.innerHTML = `
+                        <div class="bg-brand-light px-5 py-4 border-b flex justify-between items-start">
+                            <div class="pr-8">
+                                <div class="text-xs font-bold text-brand uppercase tracking-wider mb-1">${item.supplier || 'Ingredient'}</div>
+                                <h3 class="text-xl font-bold text-gray-800">${item.name}</h3>
+                            </div>
+                            <button onclick="removeGuestItem(${index})" class="text-red-400 hover:text-red-600 absolute top-4 right-4" title="Remove from Guest View"><i class="fa-solid fa-circle-xmark text-lg"></i></button>
+                        </div>
+                        <div class="p-5 flex-grow flex flex-col gap-3">
+                            <div class="flex flex-wrap gap-2">${tagsHTML}</div>
+                            <div>
+                                <h4 class="text-sm font-semibold text-gray-500 mb-1">Details/Features:</h4>
+                                <p class="text-sm text-gray-700 leading-relaxed">${item.features}</p>
+                            </div>
+                        </div>
+                    `;
+                    contentGrid.appendChild(card);
+                    
+                } else if (item.shareType === 'note') {
+                    card.className = "bg-yellow-50 p-5 rounded-xl shadow-sm border border-yellow-400 card-hover flex flex-col relative";
+                    
+                    const dateObj = new Date(item.date);
+                    const dateStr = dateObj.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+                    
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="text-lg font-bold text-gray-800 line-clamp-1 pr-8">${item.subject}</h4>
+                            <button onclick="removeGuestItem(${index})" class="text-red-400 hover:text-red-600 absolute top-4 right-4" title="Remove from Guest View"><i class="fa-solid fa-circle-xmark text-lg"></i></button>
+                        </div>
+                        <div class="text-xs text-brand-dark font-medium mb-3"><i class="fa-regular fa-calendar-days mr-1"></i> ${dateStr}</div>
+                        <p class="text-sm text-gray-700 whitespace-pre-wrap flex-grow">${item.text}</p>
+                    `;
+                    contentGrid.appendChild(card);
+                }
+            });
+        }
+
+        // --- NEW: FORMULAS SECTION LOGIC ---
+        function renderFormulasSection() {
+            sectionTitle.innerHTML = `Formulation Vault <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full align-middle ml-2"><i class="fa-solid fa-lock mr-1"></i>Secured</span>`;
+            sectionDesc.textContent = "Confidential section for storing Excel formulations and blend details.";
+            
+            contentGrid.innerHTML = `
+                <div class="col-span-full flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 rounded-xl shadow-sm border border-brand-accent/30 mb-2 gap-3">
+                    <div>
+                        <h3 class="text-brand-dark font-bold"><i class="fa-solid fa-flask mr-2"></i>Saved Master Formulas</h3>
+                        <p class="text-xs text-gray-500 mt-1">Copy directly from Excel and paste here. Data is saved securely.</p>
+                    </div>
+                    <button onclick="openAddFormulaModal()" class="w-full sm:w-auto bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition-colors flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-plus"></i> Add Formula
+                    </button>
+                </div>
+            `;
+
+            if (userFormulas.length === 0) {
+                contentGrid.innerHTML += `
+                    <div class="col-span-full text-center py-10">
+                        <i class="fa-solid fa-vial-circle-check text-4xl text-gray-300 mb-3"></i>
+                        <p class="text-gray-500">No formulas found. Add your first formulation!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Render clickable formula items
+            userFormulas.forEach((formula, index) => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-5 rounded-xl shadow-sm border border-gray-200 cursor-pointer card-hover flex flex-col h-48 transition-all hover:border-brand relative group";
+                
+                // Show short preview of text
+                let previewText = formula.text;
+                if(previewText.length > 80) previewText = previewText.substring(0, 80) + '...';
+
+                // Date formatting
+                const dateObj = new Date(formula.date);
+                const dateStr = isNaN(dateObj.getTime()) ? formula.date : dateObj.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="text-lg font-bold text-gray-800 line-clamp-1 pr-16" title="${formula.subject}">${formula.subject}</h4>
+                        <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                            <button onclick="event.stopPropagation(); openEditFormulaModal(${index})" class="text-gray-500 hover:text-blue-600 bg-gray-50 shadow-sm border rounded-md px-2 py-1 text-xs transition-colors" title="Edit Formula">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button onclick="event.stopPropagation(); deleteFormula(${index})" class="text-gray-500 hover:text-red-600 bg-gray-50 shadow-sm border rounded-md px-2 py-1 text-xs transition-colors" title="Delete Formula">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="text-xs text-brand-dark font-medium mb-3"><i class="fa-regular fa-calendar-days mr-1"></i> Last Updated: ${dateStr}</div>
+                    <p class="text-sm text-gray-600 flex-grow overflow-hidden font-mono bg-gray-50 p-2 rounded">${previewText}</p>
+                    <div class="mt-3 text-right">
+                        <span class="text-xs font-bold text-brand uppercase flex items-center justify-end gap-1 group-hover:underline">Open Excel View <i class="fa-solid fa-arrow-right-long"></i></span>
+                    </div>
+                `;
+                
+                card.onclick = () => viewFullFormula(formula);
+                contentGrid.appendChild(card);
+            });
+        }
+
+        function getTodayDateString() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function openAddFormulaModal() {
+            currentEditingFormulaIndex = -1; // Reset to denote new formula
+            document.getElementById('add-formula-subject').value = '';
+            document.getElementById('add-formula-text').value = '';
+            document.getElementById('add-formula-date').value = getTodayDateString(); // Auto set today's date
+            document.getElementById('formula-modal-title').innerHTML = '<i class="fa-solid fa-plus-circle mr-2"></i>Add New Formula';
+            openModal('add-formula-modal');
+        }
+
+        function openEditFormulaModal(index) {
+            currentEditingFormulaIndex = index;
+            const formula = userFormulas[index];
+            
+            document.getElementById('add-formula-subject').value = formula.subject;
+            document.getElementById('add-formula-text').value = formula.text;
+            
+            // Handle date format for date input
+            document.getElementById('add-formula-date').value = formula.date;
+            
+            document.getElementById('formula-modal-title').innerHTML = '<i class="fa-solid fa-pen mr-2"></i>Edit Formula';
+            openModal('add-formula-modal');
+        }
+
+        function saveFormula() {
+            const subject = document.getElementById('add-formula-subject').value.trim();
+            const text = document.getElementById('add-formula-text').value.trim();
+            const date = document.getElementById('add-formula-date').value;
+
+            if (!subject || !text || !date) {
+                alert("Please fill in Subject, Date, and Formula content.");
+                return;
+            }
+
+            const newFormula = {
+                subject: subject,
+                text: text,
+                date: date
+            };
+
+            if (currentEditingFormulaIndex > -1) {
+                // Update existing
+                userFormulas[currentEditingFormulaIndex] = newFormula;
+                currentEditingFormulaIndex = -1;
+            } else {
+                // Add new
+                userFormulas.unshift(newFormula);
+            }
+            
+            localStorage.setItem('nutraUserFormulas', JSON.stringify(userFormulas));
+            
+            // Form ko achche se clear karna taaki agla formula theek se khule
+            document.getElementById('add-formula-subject').value = '';
+            document.getElementById('add-formula-text').value = '';
+            
+            closeModal('add-formula-modal');
+            
+            // Sync to Google Sheets
+            syncToGoogleSheet("Master Formula", newFormula.subject, newFormula.text);
+
+            if (currentCategory === 'formulas') {
+                renderFormulasSection();
+            }
+        }
+
+        function viewFullFormula(formula) {
+            document.getElementById('view-formula-title').textContent = formula.subject;
+            
+            const dateObj = new Date(formula.date);
+            const dateStr = isNaN(dateObj.getTime()) ? formula.date : dateObj.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+            document.getElementById('view-formula-date').innerHTML = `<i class="fa-regular fa-calendar-days mr-1"></i> Date: ${dateStr}`;
+            
+            document.getElementById('view-formula-content').textContent = formula.text;
+            openModal('view-formula-modal');
+        }
+
+        function deleteFormula(index) {
+            if(confirm("Are you sure you want to permanently delete this formula?")) {
+                userFormulas.splice(index, 1);
+                localStorage.setItem('nutraUserFormulas', JSON.stringify(userFormulas));
+                if (currentCategory === 'formulas') {
+                    renderFormulasSection();
+                }
+            }
+        }
+
+        // Logic to add a new custom product & supplier
+        function saveCustomProduct() {
+            const pName = document.getElementById('add-prod-name').value.trim();
+            const sName = document.getElementById('add-sup-name').value.trim();
+            const sEmail = document.getElementById('add-sup-email').value.trim();
+            const sPhone = document.getElementById('add-sup-phone').value.trim();
+            const sAddr = document.getElementById('add-sup-address').value.trim();
+
+            if (!pName || !sName) {
+                alert("Product Name and Supplier Name are mandatory.");
+                return;
+            }
+
+            const newItem = {
+                name: pName,
+                supplier: sName,
+                email: sEmail,
+                phone: sPhone,
+                address: sAddr,
+                isCustom: true // Flag to identify user-added items
+            };
+
+            customProducts.push(newItem);
+            localStorage.setItem('nutraCustomProducts', JSON.stringify(customProducts));
+            
+            // Reset form
+            document.getElementById('add-prod-name').value = '';
+            document.getElementById('add-sup-name').value = '';
+            document.getElementById('add-sup-email').value = '';
+            document.getElementById('add-sup-phone').value = '';
+            document.getElementById('add-sup-address').value = '';
+            
+            closeModal('add-supplier-modal');
+            
+            // Sync to Google Sheets
+            const detailsStr = `Supplier: ${sName} | Email: ${sEmail} | Phone: ${sPhone} | Addr: ${sAddr}`;
+            syncToGoogleSheet("New Supplier/Product", pName, detailsStr);
+
+            // Refresh view
+            if (currentCategory === 'purchase_dir') {
+                renderPurchaseDirectory();
+            }
+        }
+
+
+        // --- MODAL UTILITIES ---
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // --- AUTHENTICATION & PASSWORD LOGIC ---
+
+        function handleLogin() {
+            const userSelection = document.getElementById('username-input').value;
+            const pass = document.getElementById('password-input').value;
+            const errorEl = document.getElementById('login-error');
+            
+            // Check Guest Access
+            if (userSelection === 'Guest') {
+                currentUser = { name: "Guest User", role: "guest" };
+                proceedWithLogin();
+                return;
+            }
+            
+            // Validate admin user and password
+            if (appUsers[userSelection] && appUsers[userSelection].pass === pass) {
+                currentUser = { name: userSelection, role: appUsers[userSelection].role };
+                proceedWithLogin();
+            } else {
+                errorEl.classList.remove('hidden'); // Show incorrect password warning
+            }
+        }
+        
+        function proceedWithLogin() {
+            const loginScreen = document.getElementById('login-screen');
+            loginScreen.style.opacity = '0'; // Smooth fade out effect
+            document.getElementById('login-error').classList.add('hidden');
+            
+            setTimeout(() => {
+                loginScreen.style.display = 'none'; // Remove screen
+                document.body.classList.remove('overflow-hidden'); // Allow scrolling behind
+                initApp(); // Build UI based on role
+            }, 500);
+        }
+
+        function saveNewPassword() {
+            const newPass = document.getElementById('new-password-input').value;
+            const msgEl = document.getElementById('pwd-msg');
+            
+            if (newPass.length < 3) {
+                msgEl.textContent = "Password must be at least 3 characters long.";
+                msgEl.className = "text-xs font-medium mt-1 text-red-500";
+                msgEl.classList.remove('hidden');
+                return;
+            }
+
+            // Update user password in state and localstorage
+            appUsers[currentUser.name].pass = newPass;
+            localStorage.setItem('nutraUsers', JSON.stringify(appUsers));
+            
+            msgEl.textContent = "Password updated successfully!";
+            msgEl.className = "text-xs font-medium mt-1 text-green-600";
+            msgEl.classList.remove('hidden');
+            
+            setTimeout(() => {
+                closeModal('change-password-modal');
+                document.getElementById('new-password-input').value = '';
+                msgEl.classList.add('hidden');
+            }, 1500);
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('password-input').value = '';
+            document.getElementById('login-error').classList.add('hidden');
+            
+            const loginScreen = document.getElementById('login-screen');
+            loginScreen.style.display = 'flex';
+            document.body.classList.add('overflow-hidden');
+            
+            setTimeout(() => {
+                loginScreen.style.opacity = '1';
+            }, 50);
+            
+            // Hide user controls
+            document.getElementById('user-controls').classList.add('hidden');
+            document.getElementById('user-controls').classList.remove('flex');
+            
+            // Lock formulas again on logout
+            isFormulasUnlocked = false; 
+        }
+
+        // Allow pressing 'Enter' key to login directly from password field
+        document.getElementById('password-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                handleLogin();
+            }
+        });
+    </script>
+</body>
+</html>
