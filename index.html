@@ -74,6 +74,35 @@
             z-index: 300;
             background-color: white;
         }
+        /* Excel Table Paste Styles */
+        .excel-table-format table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .excel-table-format th, .excel-table-format td {
+            border: 1px solid #d1d5db !important; /* Proper outlines */
+            padding: 0.5rem 0.75rem !important;
+            text-align: left;
+        }
+        .excel-table-format th {
+            background-color: #f3f4f6 !important;
+            font-weight: bold;
+        }
+        /* Content Editable Box */
+        .content-editable-box {
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            background-color: white;
+        }
+        .content-editable-box:empty:before {
+            content: attr(data-placeholder);
+            color: #9ca3af;
+            pointer-events: none;
+            display: block;
+        }
     </style>
 </head>
 <body class="text-gray-800 antialiased min-h-screen flex flex-col overflow-hidden">
@@ -179,6 +208,23 @@
                 <div class="flex gap-2 justify-end mt-4">
                     <button onclick="closeModal('change-password-modal')" class="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md transition-colors">Cancel</button>
                     <button onclick="saveNewPassword()" class="px-4 py-2 text-sm bg-brand text-white rounded-md hover:bg-brand-dark transition-colors">Save Updates</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Vault Password Modal -->
+    <div id="change-vault-pwd-modal" class="fixed inset-0 modal-overlay z-[200] hidden flex-col justify-center items-center p-4">
+        <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-sm">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2"><i class="fa-solid fa-key text-brand mr-2"></i>Change Vault Password</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">New Master Password for Formulas</label>
+                    <input type="text" id="new-vault-pwd-input" class="w-full px-3 py-2 border rounded-md focus:ring-brand focus:border-brand outline-none" placeholder="Enter new vault password">
+                </div>
+                <div class="flex gap-2 justify-end mt-4">
+                    <button onclick="closeModal('change-vault-pwd-modal')" class="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md transition-colors">Cancel</button>
+                    <button onclick="saveVaultPassword()" class="px-4 py-2 text-sm bg-brand text-white rounded-md hover:bg-brand-dark transition-colors">Update Password</button>
                 </div>
             </div>
         </div>
@@ -343,7 +389,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-700 mb-1">Formula Content (Paste from Excel) *</label>
-                    <textarea id="add-formula-text" rows="10" class="w-full px-3 py-2 border rounded-md focus:ring-brand outline-none resize-none font-mono text-sm" placeholder="Paste your Excel rows here..."></textarea>
+                    <div id="add-formula-text" contenteditable="true" data-placeholder="Click here and paste your Excel table..." class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-brand focus:border-brand outline-none content-editable-box excel-table-format text-sm"></div>
                 </div>
             </div>
             <div class="bg-gray-50 px-5 py-4 border-t flex justify-end gap-2">
@@ -366,7 +412,7 @@
         </div>
         <div class="p-8 flex-grow overflow-y-auto bg-gray-50">
             <div class="max-w-5xl mx-auto bg-white p-8 rounded-xl shadow-sm border border-gray-100 min-h-full overflow-x-auto">
-                <pre id="view-formula-content" class="text-gray-800 font-mono text-sm leading-relaxed whitespace-pre"></pre>
+                <div id="view-formula-content" class="text-gray-800 text-sm leading-relaxed excel-table-format w-full"></div>
             </div>
         </div>
     </div>
@@ -460,6 +506,7 @@
         let userFormulas = JSON.parse(localStorage.getItem('nutraUserFormulas')) || [];
         let currentEditingFormulaIndex = -1;
         let isFormulasUnlocked = false; // Session lock flag for Formulas section
+        let vaultPassword = localStorage.getItem('nutraVaultPwd') || 'MKAK@123'; // Master Vault Password
 
         // Database of Ingredients
         const db = {
@@ -1316,7 +1363,7 @@
         // Section Unlock Logic for Formulas
         function unlockFormulasSection() {
             const pwd = document.getElementById('section-unlock-password').value;
-            if (pwd === 'MKAK@123') {
+            if (pwd === vaultPassword) {
                 isFormulasUnlocked = true;
                 closeModal('section-unlock-modal');
                 currentCategory = 'formulas';
@@ -1685,7 +1732,8 @@
         // ---- NOTE SECURITY LOGIC ----
         function promptUnlock(index, action) {
             const note = userNotes[index];
-            if (note.password) {
+            // Anuj Khare (Super Admin) bypasses the note password prompt
+            if (note.password && currentUser.name !== 'Anuj Khare') {
                 noteToUnlockIndex = index;
                 unlockAction = action;
                 document.getElementById('unlock-password-input').value = '';
@@ -1868,9 +1916,12 @@
                         <h3 class="text-brand-dark font-bold"><i class="fa-solid fa-flask mr-2"></i>Saved Master Formulas</h3>
                         <p class="text-xs text-gray-500 mt-1">Copy directly from Excel and paste here. Data is saved securely.</p>
                     </div>
-                    <button onclick="openAddFormulaModal()" class="w-full sm:w-auto bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition-colors flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-plus"></i> Add Formula
-                    </button>
+                    <div class="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
+                        ${currentUser.name === 'Anuj Khare' ? `<button onclick="openVaultPwdModal()" class="w-full sm:w-auto bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg text-sm font-bold shadow transition-colors flex items-center justify-center gap-2"><i class="fa-solid fa-key"></i> Change Vault Pwd</button>` : ''}
+                        <button onclick="openAddFormulaModal()" class="w-full sm:w-auto bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition-colors flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Add Formula
+                        </button>
+                    </div>
                 </div>
             `;
 
@@ -1889,8 +1940,9 @@
                 const card = document.createElement('div');
                 card.className = "bg-white p-5 rounded-xl shadow-sm border border-gray-200 cursor-pointer card-hover flex flex-col h-48 transition-all hover:border-brand relative group";
                 
-                // Show short preview of text
-                let previewText = formula.text;
+                // Show short preview of text (strip HTML tags for plain text preview)
+                let plainText = formula.text.replace(/<[^>]*>?/gm, ' ');
+                let previewText = plainText.trim();
                 if(previewText.length > 80) previewText = previewText.substring(0, 80) + '...';
 
                 // Date formatting
@@ -1932,7 +1984,7 @@
         function openAddFormulaModal() {
             currentEditingFormulaIndex = -1; // Reset to denote new formula
             document.getElementById('add-formula-subject').value = '';
-            document.getElementById('add-formula-text').value = '';
+            document.getElementById('add-formula-text').innerHTML = ''; // Changed from value to innerHTML
             document.getElementById('add-formula-date').value = getTodayDateString(); // Auto set today's date
             document.getElementById('formula-modal-title').innerHTML = '<i class="fa-solid fa-plus-circle mr-2"></i>Add New Formula';
             openModal('add-formula-modal');
@@ -1943,7 +1995,7 @@
             const formula = userFormulas[index];
             
             document.getElementById('add-formula-subject').value = formula.subject;
-            document.getElementById('add-formula-text').value = formula.text;
+            document.getElementById('add-formula-text').innerHTML = formula.text; // Changed from value to innerHTML
             
             // Handle date format for date input
             document.getElementById('add-formula-date').value = formula.date;
@@ -1954,10 +2006,10 @@
 
         function saveFormula() {
             const subject = document.getElementById('add-formula-subject').value.trim();
-            const text = document.getElementById('add-formula-text').value.trim();
+            const text = document.getElementById('add-formula-text').innerHTML.trim(); // Changed from value to innerHTML
             const date = document.getElementById('add-formula-date').value;
 
-            if (!subject || !text || !date) {
+            if (!subject || !text || !date || text === '<br>') {
                 alert("Please fill in Subject, Date, and Formula content.");
                 return;
             }
@@ -1981,7 +2033,7 @@
             
             // Form ko achche se clear karna taaki agla formula theek se khule
             document.getElementById('add-formula-subject').value = '';
-            document.getElementById('add-formula-text').value = '';
+            document.getElementById('add-formula-text').innerHTML = ''; // Changed from value to innerHTML
             
             closeModal('add-formula-modal');
             
@@ -2000,7 +2052,7 @@
             const dateStr = isNaN(dateObj.getTime()) ? formula.date : dateObj.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
             document.getElementById('view-formula-date').innerHTML = `<i class="fa-regular fa-calendar-days mr-1"></i> Date: ${dateStr}`;
             
-            document.getElementById('view-formula-content').textContent = formula.text;
+            document.getElementById('view-formula-content').innerHTML = formula.text; // Changed from textContent to innerHTML
             openModal('view-formula-modal');
         }
 
@@ -2012,6 +2064,24 @@
                     renderFormulasSection();
                 }
             }
+        }
+
+        // Vault Password Change Logic (Only for Anuj)
+        function openVaultPwdModal() {
+            document.getElementById('new-vault-pwd-input').value = vaultPassword;
+            openModal('change-vault-pwd-modal');
+        }
+
+        function saveVaultPassword() {
+            const newPwd = document.getElementById('new-vault-pwd-input').value.trim();
+            if (!newPwd) {
+                alert("Password cannot be empty.");
+                return;
+            }
+            vaultPassword = newPwd;
+            localStorage.setItem('nutraVaultPwd', vaultPassword);
+            closeModal('change-vault-pwd-modal');
+            showCloudToast("Vault Password Updated!");
         }
 
         // Logic to add a new custom product & supplier
