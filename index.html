@@ -422,6 +422,79 @@
         <i class="fa-solid fa-cloud-arrow-up text-brand-accent text-xl"></i> <span id="cloud-toast-msg">Saved to Cloud!</span>
     </div>
 
+    <!-- FIREBASE LIVE SYNC DATABASE (Cross-Device Cloud) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Initialize Firebase
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const dbFirestore = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        // Auto-Authentication (Secure Cloud Access)
+        const initAuth = async () => {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
+        };
+        initAuth();
+
+        // Real-time Cloud Listeners
+        onAuthStateChanged(auth, (user) => {
+            if(user) {
+                // Products Sync
+                onSnapshot(collection(dbFirestore, 'artifacts', appId, 'public', 'data', 'customProducts'), (snapshot) => {
+                    const data = [];
+                    snapshot.forEach(d => data.push({ id: d.id, ...d.data() }));
+                    if(window.updateProductsData) window.updateProductsData(data);
+                }, (e) => console.error("Products Sync Error", e));
+
+                // Notes Sync
+                onSnapshot(collection(dbFirestore, 'artifacts', appId, 'public', 'data', 'userNotes'), (snapshot) => {
+                    const data = [];
+                    snapshot.forEach(d => data.push({ id: d.id, ...d.data() }));
+                    data.sort((a,b) => new Date(b.date) - new Date(a.date));
+                    if(window.updateNotesData) window.updateNotesData(data);
+                }, (e) => console.error("Notes Sync Error", e));
+
+                // Formulas Sync
+                onSnapshot(collection(dbFirestore, 'artifacts', appId, 'public', 'data', 'userFormulas'), (snapshot) => {
+                    const data = [];
+                    snapshot.forEach(d => data.push({ id: d.id, ...d.data() }));
+                    data.sort((a,b) => new Date(b.date) - new Date(a.date));
+                    if(window.updateFormulasData) window.updateFormulasData(data);
+                }, (e) => console.error("Formulas Sync Error", e));
+
+                // Guest Dashboard Sync
+                onSnapshot(collection(dbFirestore, 'artifacts', appId, 'public', 'data', 'guestSharedItems'), (snapshot) => {
+                    const data = [];
+                    snapshot.forEach(d => data.push({ id: d.id, ...d.data() }));
+                    if(window.updateGuestData) window.updateGuestData(data);
+                }, (e) => console.error("Guest Sync Error", e));
+            }
+        });
+
+        // Global DB Wrapper Functions for Data Saving
+        window.dbAdd = async (coll, data) => {
+            if(!auth.currentUser) return;
+            await addDoc(collection(dbFirestore, 'artifacts', appId, 'public', 'data', coll), data);
+        };
+        window.dbSet = async (coll, id, data) => {
+            if(!auth.currentUser) return;
+            await setDoc(doc(dbFirestore, 'artifacts', appId, 'public', 'data', coll, id), data);
+        };
+        window.dbDel = async (coll, id) => {
+            if(!auth.currentUser) return;
+            await deleteDoc(doc(dbFirestore, 'artifacts', appId, 'public', 'data', coll, id));
+        };
+    </script>
+
     <!-- Application Logic & Data -->
     <script>
         // --- GOOGLE SHEETS CLOUD SYNC SETTINGS ---
@@ -490,20 +563,23 @@
         let appUsers = JSON.parse(localStorage.getItem('nutraUsers')) || defaultUsers;
         let currentUser = null;
 
-        // Shared with Guest Data
-        let guestSharedItems = JSON.parse(localStorage.getItem('nutraGuestSharedItems')) || [];
-
-        // Custom Products added by Purchase team
-        let customProducts = JSON.parse(localStorage.getItem('nutraCustomProducts')) || [];
+        // Cloud Connected Variables
+        let guestSharedItems = [];
+        let customProducts = [];
+        let userNotes = [];
+        let userFormulas = [];
         
-        // Personal Notes & Variables for Edit/Unlock logic
-        let userNotes = JSON.parse(localStorage.getItem('nutraUserNotes')) || [];
+        // Live Data Update Functions (Called by Firebase)
+        window.updateProductsData = (data) => { customProducts = data; if (currentCategory === 'purchase_dir') renderPurchaseDirectory(); };
+        window.updateNotesData = (data) => { userNotes = data; if (currentCategory === 'notes') renderNotesSection(); };
+        window.updateFormulasData = (data) => { userFormulas = data; if (currentCategory === 'formulas') renderFormulasSection(); };
+        window.updateGuestData = (data) => { guestSharedItems = data; if (currentUser && currentUser.role === 'guest') renderGuestDashboard(); };
+
+        // Variables for Edit/Unlock logic
         let currentEditingNoteIndex = -1;
         let noteToUnlockIndex = -1;
         let unlockAction = ''; // can be 'view', 'edit', or 'delete'
 
-        // Formulas Variables
-        let userFormulas = JSON.parse(localStorage.getItem('nutraUserFormulas')) || [];
         let currentEditingFormulaIndex = -1;
         let isFormulasUnlocked = false; // Session lock flag for Formulas section
         let vaultPassword = localStorage.getItem('nutraVaultPwd') || 'MKAK@123'; // Master Vault Password
@@ -1710,23 +1786,18 @@
             };
 
             if (currentEditingNoteIndex > -1) {
-                // Update existing note
-                userNotes[currentEditingNoteIndex] = newNote;
+                // Update existing note securely in Cloud
+                window.dbSet('userNotes', userNotes[currentEditingNoteIndex].id, newNote);
                 currentEditingNoteIndex = -1; // reset
             } else {
-                // Add new note
-                userNotes.unshift(newNote);
+                // Add new note to Cloud
+                window.dbAdd('userNotes', newNote);
             }
             
-            localStorage.setItem('nutraUserNotes', JSON.stringify(userNotes));
             closeModal('add-note-modal');
             
-            // Sync to Google Sheets
+            // Sync to Google Sheets Backup
             syncToGoogleSheet("Personal Note", newNote.subject, newNote.text);
-
-            if (currentCategory === 'notes') {
-                renderNotesSection();
-            }
         }
 
         // ---- NOTE SECURITY LOGIC ----
@@ -1795,11 +1866,7 @@
 
         function deleteNote(index) {
             if(confirm("Are you sure you want to permanently delete this note?")) {
-                userNotes.splice(index, 1);
-                localStorage.setItem('nutraUserNotes', JSON.stringify(userNotes));
-                if (currentCategory === 'notes') {
-                    renderNotesSection();
-                }
+                window.dbDel('userNotes', userNotes[index].id);
             }
         }
 
@@ -1830,16 +1897,14 @@
                 return;
             }
 
-            guestSharedItems.push(itemToShare);
-            localStorage.setItem('nutraGuestSharedItems', JSON.stringify(guestSharedItems));
+            // Share directly to Cloud
+            window.dbAdd('guestSharedItems', itemToShare);
             alert("Successfully shared with Guest Dashboard!");
         }
 
         function removeGuestItem(index) {
             if(confirm("Remove this item from the Guest Dashboard?")) {
-                guestSharedItems.splice(index, 1);
-                localStorage.setItem('nutraGuestSharedItems', JSON.stringify(guestSharedItems));
-                renderGuestDashboard();
+                window.dbDel('guestSharedItems', guestSharedItems[index].id);
             }
         }
 
@@ -2021,15 +2086,13 @@
             };
 
             if (currentEditingFormulaIndex > -1) {
-                // Update existing
-                userFormulas[currentEditingFormulaIndex] = newFormula;
+                // Update existing in Cloud
+                window.dbSet('userFormulas', userFormulas[currentEditingFormulaIndex].id, newFormula);
                 currentEditingFormulaIndex = -1;
             } else {
-                // Add new
-                userFormulas.unshift(newFormula);
+                // Add new to Cloud
+                window.dbAdd('userFormulas', newFormula);
             }
-            
-            localStorage.setItem('nutraUserFormulas', JSON.stringify(userFormulas));
             
             // Form ko achche se clear karna taaki agla formula theek se khule
             document.getElementById('add-formula-subject').value = '';
@@ -2037,12 +2100,8 @@
             
             closeModal('add-formula-modal');
             
-            // Sync to Google Sheets
+            // Sync to Google Sheets Backup
             syncToGoogleSheet("Master Formula", newFormula.subject, newFormula.text);
-
-            if (currentCategory === 'formulas') {
-                renderFormulasSection();
-            }
         }
 
         function viewFullFormula(formula) {
@@ -2058,11 +2117,7 @@
 
         function deleteFormula(index) {
             if(confirm("Are you sure you want to permanently delete this formula?")) {
-                userFormulas.splice(index, 1);
-                localStorage.setItem('nutraUserFormulas', JSON.stringify(userFormulas));
-                if (currentCategory === 'formulas') {
-                    renderFormulasSection();
-                }
+                window.dbDel('userFormulas', userFormulas[index].id);
             }
         }
 
@@ -2106,8 +2161,8 @@
                 isCustom: true // Flag to identify user-added items
             };
 
-            customProducts.push(newItem);
-            localStorage.setItem('nutraCustomProducts', JSON.stringify(customProducts));
+            // Add Custom Product to Cloud
+            window.dbAdd('customProducts', newItem);
             
             // Reset form
             document.getElementById('add-prod-name').value = '';
